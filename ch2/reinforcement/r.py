@@ -147,9 +147,11 @@ representing the difference between two vectors.
 
 class Vector:
     """Represent a vector in a multidimensional space."""
-    def __init__(self, d):
-        """Create d-dimensional vector of zeros."""
-        self._coords = [0] * d
+    def __init__(self, *args):
+        if len(args) == 1:
+            self._coords = [0] * args[0]
+        elif len(args) > 1:
+            self._coords = list(args)
 
     def __len__(self):
         """Return the dimension of the vector."""
@@ -173,6 +175,9 @@ class Vector:
             result[j] = self[j] + other[j]
         return result
 
+    def __radd__(self, other):
+        return self + other
+
     def __sub__(self, other):
         """Subtract vector from another"""
         if len(self) != len(other):
@@ -187,6 +192,17 @@ class Vector:
         for j in range(len(self)):
             result[j] = -1 * self._coords[j]
         return result
+
+    def __mul__(self, other):
+        result = Vector(len(self))
+        if isinstance(other, (int, float)):
+            other = [other] * len(self)  # Create a new vector composed entirely of the multiple
+        for j in range(len(self)):
+            result[j] = self._coords[j] * other[j]
+        return result
+
+    def __rmul__(self, multiple):
+        return self * multiple
 
     def __eq__(self, other):
         """Return True if vector has same coordinates as other."""
@@ -206,10 +222,144 @@ class Vector:
 # Implemented above!
 
 """In section 2.3.3, we note that our Vector class supports a syntax such that v = u + [5, 3, 10, -2, 1], in which the
-sum of a vector and list returns a new vector. However, the syntax s"""
+sum of a vector and list returns a new vector. However, the syntax v = [5, 3, 10, -2, 1] + u is illegal. Explain how
+the Vector class definition can be revised so that this syntax generates a new vector."""
 
 # Implemented above!
 
+
+"""Implement the __mul__ method for the Vector class of Section 2.3.3, so that the expression v * 3 returns a new vector
+with coordinates that are 3 times the respective coordinates of v."""
+
+# Implemented above!
+
+"""The exercise above asks for an implementation of __mul__, to provide support for the syntax v * 3. Implement the
+__rmul__ method, to provide additional support for syntax 3 * v"""
+
+# Implemented above!
+
+"""Implement the __mul__ method for the Vector class, so that the expression u * v returns a scalar that represents 
+the dot product of the vectors."""
+
+# Implemented above!
+
+"""The Vector class provides a constructor that takes an integer d, and produces a d-dimensional vector with all 
+coordinates equal to 0. Another convenient form for creating a new vector would be to send the constructor a parameter
+that is some iterable type representing a sequence of numbers. Modify the constructor so that either an iterable or
+integer is acceptable."""
+
+# Implemented above! I used *args instead of taking an iterable, since that feels more intuitive.
+
+"""Our Range class relies on the formula
+
+max(0, (stop - start + step - 1) // step)
+
+to compute the number of elements in the range. Justify this formula, in your own words."""
+
+# TODO: skip for now
+
+"""Give a short fragment of Python code that uses the progression classes from Section 2.4.2 to find the 8th value
+of a Fibonacci progression that starts with 2 and 2 as its first value"""
+
+# for index, x in enumerate(FibonacciProgression(2, 2)):
+#     if index == 7:
+#         return x
+# 2, 2, 4, 6, 10, 16, 26, 42
+
+"""When using the ArithmeticProgression class of Section 2.4.2 with an increment of 128 and a start of 0, how many
+calls to next can we make before we reach an integer of 2^63 or larger?"""
+
+# 128 + 128 + 128...
+# 128n
+# 2^63 = 128n
+# n = 2^63/128
+# n = (7.21 * 10^16) + 1  # because we have to include 0
+
+"""
+What are some potential efficiency disadvantages of having very deep inheritance trees, that is, a large set of classes,
+A, B, C, and so on, such that B extends A, C extends B, D extends C, etc.?
+"""
+
+# When looking for the right method or property, the Python interpreter first checks the base class, and failing that,
+# checks all base classes that were inherited from. This time it takes to retrieve the right method/property increases
+# as the nesting gets deeper.
+#
+# Also deep inheritance trees are more difficult for humans to understand.
+
+"""
+What are some potential efficiency disadvantages of having very shallow inheritance trees, that is, a large set of
+classes A, B, C, and so on, such that all of these extend a single class, Z?
+"""
+
+# Not much code gets reused.
+
+"""
+The collections.Sequence abstract base class does not provide support for comparing two sequences to each other. Modify
+our Sequence class from Code Fragment 2.14 to include a definition for the __eq__ method, so that expresion seq1 == seq2
+will return True precisely when the two sequences are element by element equivalent.
+"""
+
+from abc import ABCMeta, abstractmethod
+
+
+class Sequence(metaclass=ABCMeta):
+    """Our own version of collections.Sequence abstract base class"""
+
+    @abstractmethod
+    def __len__(self):
+        """Return the length of the sequence"""
+
+    @abstractmethod
+    def __getitem(self, j):
+        """Returns the element at index j of the sequence."""
+
+    def __eq__(self, other):
+        if len(self) != len(other):
+            return False
+
+        for j in range(len(self)):
+            if self[j] != other[j]:
+                return False
+        return True
+
+    def __lt__(self, other):
+        for j in range(len(self)):
+            if self[j] < other[j]:
+                return True
+            elif self[j] > other[j]:
+                return False
+        return False
+
+    def __contains__(self, val):
+        """Return True is val found in the sequence; False otherwise."""
+        for j in range(len(self)):
+            if self[j] == val:
+                return True
+        return False
+
+    def index(self, val):
+        """Return the number of elements equal to a given value."""
+        for j in range(len(self)):
+            if self[j] == val:
+                return j
+        raise ValueError('value not in sequence')
+
+    def count(self, val):
+        """Return the number of elements equal to a given value."""
+        k = 0
+        for j in range(len(self)):
+            if self[j] == val:
+                k += 1
+        return k
+
+
+"""In similar spirit to the previous problem, augment the Sequence class with method __lt__, to support lexicographic
+comparison seq1 < seq2"""
+
+# implemented above!
+
+
+# tests
 if __name__ == "__main__":
     original = Vector(3)
     original[1] = 4
@@ -228,3 +378,17 @@ if __name__ == "__main__":
     negative_original[1], negative_original[2] = -4, -1
     assert -original == negative_original, "The negative of the vector isn't correct"
     assert original != negative_original, "The original value of the vector changed during negation"
+
+    assert [5, 2, 4] + original == original + [5, 2, 4]
+
+    same_vector = Vector(3)
+    same_vector[0], same_vector[1], same_vector[2] = 0, 12, 3
+    assert original * 3 == same_vector, f"{original * 3} and {same_vector} are not the same!"
+    assert 3 * original == same_vector,  f"Right multiply is not working"
+
+    multiplied_vector = Vector(3)
+    multiplied_vector[0], multiplied_vector[1], multiplied_vector[2] = 0, 8, 0
+    assert original * another == multiplied_vector, f"{original * another} and {multiplied_vector} are not the same!"
+
+    assert Vector(0, 0, 0) == Vector(3)
+    assert Vector(0, 4, 1) == original
