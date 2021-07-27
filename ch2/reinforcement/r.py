@@ -194,9 +194,10 @@ class Vector:
         return result
 
     def __mul__(self, other):
-        result = Vector(len(self))
         if isinstance(other, (int, float)):
             other = [other] * len(self)  # Create a new vector composed entirely of the multiple
+
+        result = Vector(len(self))
         for j in range(len(self)):
             result[j] = self._coords[j] * other[j]
         return result
@@ -392,3 +393,7 @@ if __name__ == "__main__":
 
     assert Vector(0, 0, 0) == Vector(3)
     assert Vector(0, 4, 1) == original
+
+    # Checking __mul__ for C-2.25
+    assert Vector(1, 4, 3) * Vector(2, 5, 4) == Vector(2, 20, 12)
+    assert Vector(5, 2, 8) * 3 == Vector(15, 6, 24)
