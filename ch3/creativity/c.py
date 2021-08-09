@@ -245,6 +245,111 @@ What is wrong with this justification."""
 # Base case: F(2) = 2, F(1) = 1. These are both less than 1.5^n.
 # F(3) = 3, 1.5^3 = 27/8
 # F(4) = 5, 1.5^4 = 81/16
-# F(5) = 8, 1.5^5 = 243/32. This is when F(n) > 3/2^n
+# F(5) = 8, 1.5^5 = 243/32.
+# F(5) >= 3/2^5.
+
+# Induction step: We claim F(n) is Ω(3/2^n) for n > 5.
+# F(n) = F(n-2) + F(n-1)
+# Then (3/2)^(n-2) + (3/2)^(n-1) >= (3/2)^n
+# (3/2)^n * (3/2)^-2 + (3/2)^n * (3/2)^-1 >= (3/2)^n
+# (3/2)^n((3/2)^-2 + (3/2)^-1) >= (3/2)^n
+# (3/2)^n(4/9 + 2/3)
+# = 10/9 (3/2)^n >= (3/2)^n
+# Which is true.
+
+# C-3.50
+"""Let p(x) be a polynomial of degree n. Sigma_(i=0)^(n) a_i x^i
+a) Describe a simple O(n^2)-time algorithm for computing p(x)"""
+
+# a is a sequence of length n
+# def computer_polynomial(a):
+#   n = len(a)
+#   total = 0
+#   for i in range(n):
+#     ai = a[i]
+#     xi = 1
+#     for x in range(i):
+#       xi *= x
+#     total += a * xi
+#   return total
+#
+#  The first loop makes n passes, and the inner loop makes 1 + 2 + 3 +... + n passes.
+# n + n(n+1)/2 passes in total. Or O(n^2)
+
+"""b) Describe an O(n log n)-time algorithm for computing p(x), based upon a more efficient calculation of x^i"""
+
+# TODO: Why create a convoluted O(n log n) algorithm when there's a straightforward O(n) algorithm? :thinking:
+
+# C-3.51
+"""Show the summation Sigma_(i=1)^(n) log i is O(n log n)"""
+
+# Base case: n = 1.
+# log 1 <= c * (1) log (1)
+# 0 <= 0. Holds true.
 # Induction step.
-# TODO: To be continued...
+# Sigma_(i=1)^(n) log i = log 1 + log 2 + log 3 + ... + log (n - 1) + log n <= c * n log n
+# By the identity that log_b ac = log_b a + log_b c we see that...
+# Sigma_(i=1)^(n) log i = log (1 * 2 * 3 * 4 * ... * n -1 * n) = log n! < c * n log n
+# n log n = log n^n
+# log n! <= log n^n by definition since n! <= n^n since n * (n - 1) * (n - 2) ... (n - n) <= n * n * n * n
+# And so Sigma_(i=1)^(n) log i is O(n log n)
+
+# C-3.52
+"""Show the summation Sigma_(i=1)^(n) log i is Ω(n log n)"""
+
+# TODO: To be continued
+
+# C-3.53
+"""An evil king has n bottles of wine, and a spy has just poisoned one of them. Unfortunately, they do not know which 
+one it is. The poison is very deadly; just one drop diluted even a billion to one will still kill. Even so, it takes a
+full month for the poison to take effect. Design a scheme for determining exactly which one of the wine bottles was 
+poisoned in just one month's time while expanding O(log n) taste testers."""
+
+# log n taste testers... n bottles of wine. 1 is poisoned.
+# 1/n bottles is poisoned. For each bottle drank, you add 1/n chance that you've drank the poisoned bottle.
+# If no one dies, then the poison is in the remaining bottle(s).
+# If n = 1, then there is a 1/1 chance that bottle is poisoned, In other words, it is certainly poisoned.
+# If n = 2, then there is a 1/2 chance the bottle is poisoned. But you have log 2, or 1, taste tester. If they drink
+# the bottle and die, then it is poison, if not, the other is poison.
+# For n = 3, you have log 3 taste testers... 1.58? Take the ceiling. Same logic as n = 2 applies. If either die, poisoned
+# bottle is found. If neither die, then the remaining bottle is poison.
+# For n = 4, you have two testers. Have tester #1 drink bottle n = 1 and n = 2. Have tester #2 drink n = 2, n = 3.
+# For n = 5, you have three testers. Have tester #1 drink n = 1, n = 2. Tester #2 drinks n = 2, n = 3. Tester #3
+# drinks n = 4.
+# For n = 6, you have three testers. Have tester #1 drink n = 1, n = 2. Tester #2 drinks n = 2, n = 3, n = 4. Tester #3
+# drinks n = 4, n = 5.
+# For n = 7, you have three testers. Have tester #1 drink 1, 2, 5. Tester #2 drinks 2, 3, 4.  #3 drinks 4, 5, 6.
+# For n = 8, you have three testers. Tester #1 drinks 1, 2, 5, 7. Tester #2 drinks 2, 3, 4, 7. #3 drinks 4, 5, 6, 7
+# For n = 9, you have four testers.
+# For n = 11, you have four testers. T#1 drinks 1, 2, 4, 7. T#2 drinks 2, 3, 5, 8. T#3 drinks 4, 5
+# For each additional tester. You can test for AND and OR configurations.
+# a AND b
+# ~a AND ~b = a OR b by DeMorgan's law.
+# ~a AND b
+# a AND ~b
+# With 2 testers, there are 2 * 2 choices. You can test up to 4 bottles with that.
+# With 3 testers, there are 2 * 2 * 2 choices. You can test up to 8 bottles with that.
+# a AND b AND c
+# ~a AND b AND c
+# ~a AND ~b AND c
+# ~a AND b AND ~c
+# ~a AND ~b AND ~c
+# a AND ~b AND c
+# a AND ~b AND ~c
+# a AND b AND ~c
+# With 4 testers, there are 16 choices.
+# With n testers, there are 2^n choices.
+
+# You can test n bottles with log n tasters, because n tasters can taste 2^n bottles.
+# log (2^n) = n.
+# So n bottles can be tested n times by log n tasters.
+
+# C-3.54
+"""A sequence S contains n integers taken from the interval [0, 4n], with repetitions allowed. Describe an efficient
+algorithm for determining an integer value k that occurs the most often in S. What is the running time of your 
+algorithm?"""
+
+# Initialize an empty dictionary
+# Go through each number on the list. Add +1 to the dictionary each time it occurs.
+# Go through the dictionary and find the maximum number.
+# This would take O(n) time.
