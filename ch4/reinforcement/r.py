@@ -106,6 +106,15 @@ def find_max(S, n, max=-math.inf):
 """Draw the recursion trace for the computation of power(2, 5), using the traditional function implemented in Code
 Fragment 4.12"""
 
+
+def power(x, n):
+    """Computer the value x**n for integer n."""
+    if n == 0:
+        return 1
+    else:
+        return x * power(x, n-1)
+
+
 # power(2, 5) returns 2 * (16) = 32
 # power(2, 4) returns 2 * (8) = 16
 # power(2, 3) returns 2 * (4) = 8
