@@ -97,39 +97,97 @@ on top of a smaller one. Describe a recursive algorithm for solving the Towers o
 # C-4.15
 """Write a recursive function that will output all the subsets of a set of n elements (without repeating any subsets)"""
 
-def get_all_subsets(S, n=0):
-    # 1, 2, 3, 4, 5
-    # 1, 2, 3, 4
-    # 1, 2, 3, 5
-    # 1, 2, 4, 5
-    # 1, 3, 4, 5
-    # 2, 3, 4, 5
-    # 1, 2, 3
-    # 1, 2, 4
-    # 1, 3, 4
-    # 2, 3, 4
-    # 1, 2, 5
-    # 1, 3, 5
-    # 2, 3, 5
-    # 1, 4, 5
-    # 2, 4, 5
-    # 3, 4, 5
-
-    # 1
-    # 2
-    # 3
-    # 4
-    # 5
-    # 1, 2
-    # 1, 3
-    # 1, 4
-    # 1, 5
-    # 2, 3
-    # 2, 4
-    # 2, 5
-    # 3, 4
-    # 3, 5
-    # 4, 5
+def get_all_subsets(k, S, universe):
+    if k == 1:
+        pass
+    else:
+        for element in universe:
+            new_S = S + [element]
+            print(new_S)
+            new_universe = universe.difference({element})
+            k -= 1
+            if k > 1:
+                get_all_subsets(k, new_S, new_universe)
+            k = len(universe)
+            universe = universe.difference({element})
 
 
+# C-4.16
+"""Write a short recursive Python function that takes a character string s and outputs its reverse. For example, the 
+reverse of pots&pans would be snap&stop"""
+
+def reverse_string(s):
+    """
+    >>> reverse_string('pots&pans')
+    'snap&stop'
+    >>> reverse_string('gotmilk')
+    'klimtog'
+    """
+    stop = len(s) - 1
+    if stop == 0:
+        return s
+    return s[stop] + reverse_string(s[1:stop]) + s[0]
+
+
+# C-4.17
+"""Write a short recursive Python function that determines if a string s is a palindrome"""
+def is_palindrome(s):
+    """
+    >>> is_palindrome('racecar')
+    True
+    >>> is_palindrome('lalal')
+    True
+    >>> is_palindrome('lalala')
+    False
+    >>> is_palindrome('ss')
+    True
+    """
+    if len(s) <= 1:
+        return True
+    if s[0] != s[-1]:
+        return False
+    return is_palindrome(s[1:-1])
+
+
+# C-4.18
+"""Use recursion to write a Python function for determining if a string s has more vowels than consonants"""
+def more_vowels_than_consonants(s, vowel_count=0, consonant_count=0):
+    """
+    >>> more_vowels_than_consonants('')
+    False
+    >>> more_vowels_than_consonants('h')
+    False
+    >>> more_vowels_than_consonants('ha')
+    False
+    >>> more_vowels_than_consonants('a')
+    True
+    >>> more_vowels_than_consonants('huehuehue')
+    True
+    >>> more_vowels_than_consonants('hahahaha')
+    False
+    """
+    if len(s) == 0:
+        return vowel_count > consonant_count
+    if s[0] in ('a','e','i','o','u'):
+        vowel_count += 1
+    else:
+        consonant_count += 1
+    return more_vowels_than_consonants(s[1:], vowel_count, consonant_count)
+
+
+# C-4.19
+"""Write a short recursive Python function that rearranges a sequence of integer values so that all even values appear
+before all the odd values."""
+
+def all_even_before_odd(integer):
+    """
+    >>> all_even_before_odd(28492)
+    28429
+    """
     pass
+
+
+
+
+if __name__ == "__main__":
+    get_all_subsets(5, [], {1, 2, 3, 4, 5})
