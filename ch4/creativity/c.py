@@ -179,14 +179,111 @@ def more_vowels_than_consonants(s, vowel_count=0, consonant_count=0):
 """Write a short recursive Python function that rearranges a sequence of integer values so that all even values appear
 before all the odd values."""
 
-def all_even_before_odd(integer):
+def all_even_before_odd(S, n=0):
     """
-    >>> all_even_before_odd(28492)
-    28429
+    >>> all_even_before_odd([2, 8, 4, 9, 2])
+    [2, 8, 4, 2, 9]
+    >>> all_even_before_odd([3, 7, 0, 2, 4, 3])
+    [0, 2, 4, 3, 7, 3]
     """
-    pass
+    if n >= len(S):
+        return []
+    if S[n] % 2 == 1:
+        return all_even_before_odd(S, n+1) + [S[n]]
+    else:
+        return [S[n]] + all_even_before_odd(S, n+1)
 
 
+# C-4.20
+"""Given an unsorted sequence, S, of integers and an integer k, describe a recursive algorithm for rearranging the 
+elements in S so that all elements less than or equal to k come before any elements larger than k. What is the running 
+time of your algorithm on a sequence of n values?"""
+
+def sort_smaller_than_k(S, k, n=0):
+    """
+    >>> sort_smaller_than_k([2, 8, 4, 9, 2], 5)
+    [2, 4, 2, 9, 8]
+    >>> sort_smaller_than_k([3, 7, 0, 2, 4, 3], 6)
+    [3, 0, 2, 4, 3, 7]
+    """
+    if n >= len(S):
+        return []
+    if S[n] > k:
+        return sort_smaller_than_k(S, k, n+1) + [S[n]]
+    else:
+        return [S[n]] + sort_smaller_than_k(S, k, n+1)
+
+
+# The running time is O(n).
+
+# C-4.21
+"""Suppose you are given an n-element sequence, S, given integers that are listed in increasing order. Given a number k,
+describe a recursive algorithm to find two integers in S that sum to k, if such a pair exists. What is the running time of
+your algorithm?"""
+
+# Good idea to implement binary search
+
+def sum_to_k(S, k, start, stop):
+    """
+    >>> sum_to_k([1, 4, 6, 7, 11, 13, 19], 17, 0, 7)
+    [4, 13]
+    >>> sum_to_k([6, 9, 10, 12, 29, 35, 83, 134], 15, 0, 8)
+    [6, 9]
+    >>> sum_to_k([3, 6, 10, 15, 29, 34, 44], 6, 0, 7)
+    >>> sum_to_k([], 10, 0, 0)
+    """
+    if len(S) == 0:
+        return None
+    mid = (start + stop) // 2
+    if start >= (stop - 1):
+        return sum_to_k(S[1:], k, 0, len(S[1:]))
+    if S[0] + S[mid] == k:
+        return [S[0], S[mid]]
+    elif S[0] + S[mid] > k:
+        return sum_to_k(S, k, start, mid)
+    elif S[0] + S[mid] < k:
+        return sum_to_k(S, k, mid, stop)
+
+
+# C-4.22
+"""Develop a nonrecursive implementation of the version of power from Code Fragment 4.12 that uses repeated squaring."""
+
+# Code Fragment 4.12
+
+def power(x, n):
+    """Computer the value x**n for integer n."""
+    if n == 0:
+        return 1
+    else:
+        partial = power(x, n // 2)
+        result = partial * partial
+        if n % 2 == 1:
+            result *= x
+        return result
+
+def nonrecursive_power(x, n):
+    """
+    >>> nonrecursive_power(2, 2)
+    4
+    >>> nonrecursive_power(2, 3)
+    8
+    >>> nonrecursive_power(2, 4)
+    16
+    >>> nonrecursive_power(2, 18)
+    262144
+    >>> nonrecursive_power(3, 3)
+    27
+    """
+    result = 1
+    k = 0
+    while k < n:
+        if k == 0 or (k * 2 > n):
+            result *= x
+            k += 1
+        elif k * 2 <= n:
+            result = result * result
+            k *= 2
+    return result
 
 
 if __name__ == "__main__":
