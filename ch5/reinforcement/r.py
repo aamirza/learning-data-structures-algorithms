@@ -259,19 +259,19 @@ def find_repeat2(S):
 """Experimentally evaluate the efficiency of the pop method of Python's list class when using varying indices as a 
 parameter, as we did for insert on page 205."""
 
-import time
-
-N = 1000000
-data = [None] * N
-start = time.time()
-for n in range(N):
-    #data.pop()
-    data.pop(N//2)
-    #data.pop(0)
-    N -= 1
-end = time.time()
-elapse = end - start
-print(elapse)
+# import time
+#
+# N = 1000000
+# data = [None] * N
+# start = time.time()
+# for n in range(N):
+#     #data.pop()
+#     data.pop(N//2)
+#     #data.pop(0)
+#     N -= 1
+# end = time.time()
+# elapse = end - start
+# print(elapse)
 
 """
             100         1000        10000       100000
@@ -279,3 +279,84 @@ k = 0       1.48e-5     3.01e-4     2.03e-3     1.99e-2
 k = n // 2  8.29e-5     3.57e-4     1.66e-2     1.059       
 k = n       5.41e-5     7.84e-4     2.63e-2     2.483
 """
+
+# R-5.9
+"""
+Explain the changes that would have to be made to the program of Code Fragment 5.11 so that it can perform the Caesar 
+cipher for messages that are written in alphabet-based language other than English, such as Greek, Russian, or Hebrew.
+"""
+
+class CaesarCipher:
+    def __init__(self, shift):
+        encoder = [None] * 26
+        decoder = [None] * 26
+        for k in range(26):
+            encoder[k] = chr((k + shift) % 26 + ord('A'))
+            decoder[k] = chr((k - shift) % 26 + ord('A'))
+        self._forward = ''.join(encoder)    # will store as string
+        self._backward = ''.join(decoder)
+
+    def encrypt(self, message):
+        return self._transform(message, self._forward)
+
+    def derypt(self, secret):
+        return self._transform(secret, self._backward)
+
+    def _transform(self, original, code):
+        msg = list(original)
+        for k in range(len(msg)):
+            if msg[k].isupper():
+                j = ord(msg[k]) - ord('A')
+                msg[k] = code[j]
+        return ''.join(msg)
+
+"""For other languages, you will want to change the % 26 and * 26 to represent the number of characters in the other writing 
+script, and ord('A') to be that of the other writing script as well. You may or may not need the .isupper() depending on
+whether the writing system has uppercase letters or not. With that, the Caesar cipher should work for other alphabetic 
+writing systems."""
+
+# R-5.10
+"""The constructor for the CaesarCipher class can be implemented with a two-line body by building the forward and 
+backward strings using a combination of the join method and an an appropriate comprehension syntax. Give such an 
+implementation."""
+
+class CaesarCipher:
+    def __init__(self, shift):
+        self._forward = ''.join([chr((k + shift) % 26 + ord('A')) for k in range(26)])
+        self._backward = ''.join([chr((k - shift) % 26 + ord('A')) for k in range(26)])
+
+    def encrypt(self, message):
+        return self._transform(message, self._forward)
+
+    def derypt(self, secret):
+        return self._transform(secret, self._backward)
+
+    def _transform(self, original, code):
+        msg = list(original)
+        for k in range(len(msg)):
+            if msg[k].isupper():
+                j = ord(msg[k]) - ord('A')
+                msg[k] = code[j]
+        return ''.join(msg)
+
+# R-5.11
+"""Use standard control structures to compute the sum of all numbers in an n x n data set, represented as a list of 
+lists."""
+
+numbers = [
+    [5, 9, 2],
+    [8, 5, 3],
+    [7, 6, 9],
+]
+
+total = 0
+for number_list in numbers:
+    for number in number_list:
+       total += number
+print(total)
+
+# R-5.12
+"""Describe how the built-in sum function can be combined with Python's list comprehension syntax to compute the sum of 
+all numbers in an n x n data set, represented as a list of lists"""
+
+print(sum([sum(number) for number in numbers]))
