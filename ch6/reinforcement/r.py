@@ -141,8 +141,174 @@ for k in range(self._size):
     self._data[k] = old[k]
 """
 
-# Assuming self._front = 0 would not be part of the new code, the problem with this is that it leaves any value before
-# self._front at None, which would be an extremely inefficient use of space especially as more and more dequeue
-# operations get performed. In a worst-case scenarion, you would need to initialize a very large array to store only a
-# few values.
-# WRONG. Assume the code is the same.
+# The data would be out of order, because the kth datapoint is not necessarily the kth item in the stack. You would also
+# need a larger array
+
+# R-6.11
+"""
+Give a simple adapter that implements our queue ADT while using a collections.deque instance for storage.
+"""
+
+from collections import deque
+
+
+class ArrayQueue:
+    def __init__(self):
+        self._data = deque()
+
+    def __str__(self):
+        return f"Queue({self._data})"
+
+    def __len__(self):
+        return len(self._data)
+
+    def enqueue(self, value):
+        self._data.append(value)
+
+    def dequeue(self):
+        return self._data.popleft()
+
+    def first(self):
+        return self._data[0]
+
+    def is_empty(self):
+        return len(self._data) == 0
+
+
+# R-6.12
+"""What values are returned during the following sequence of deque ADT operations on an initially empty deque?"""
+
+"""
+add_first(4),     [4]
+add_last(8),      [4, 8]
+add_first(5),     [5, 4, 8]
+back(),           8
+delete_first(),   5
+delete_last(),    8
+add_first(5),     [5, 4]
+back(),           4
+delete_first(),   5
+delete_last(),    4
+add_last(7),      [7]
+first(),          7
+last(),           7
+add_last(6),      [7, 6]
+delete_first(),   7
+delete_first()    6
+"""
+
+# R-6.13
+"""Suppose you have a deque D containing the numbers (1, 2, 3, 4, 5, 6, 7, 8), in this order. Suppose further that you
+have an initially empty queue Q. Give a code fragment that uses only D and Q (and no other variable) and results in D
+storing the elements in the order (1, 2, 3, 5, 4, 6, 7, 8). [note 5 and 4 are swapped]"""
+
+"""
+D = deque([1, 2, 3, 4, 5, 6, 7, 8])
+Q = ArrayQueue()
+
+
+    # 1, 2, 3 // 4, 5, 6, 7, 8
+    # [] // 4, 5, 6, 7, 8, 1, 2, 3
+    # 4, 5 // 6, 7, 8, 1, 2, 3
+    # [] // 4, 6, 7, 8, 1, 2, 3, 5
+    # 4, 6, 7, 8 // 1, 2, 3, 5
+    # [] // 1, 2, 3, 5, 4, 6, 7, 8
+
+while D[0] != 4:
+    Q.enqueue(D.popleft())
+print(f"Step 1: {Q}, {D}")
+
+while not Q.is_empty():
+    D.append(Q.dequeue())
+print(f"Step 2: {Q}, {D}")
+
+while D[0] in (4, 5):
+    Q.enqueue(D.popleft())
+print(f"Step 3: {Q}, {D}")
+
+while not Q.is_empty():
+    if Q.first() == 4:
+        D.appendleft(Q.dequeue())
+    elif Q.first() == 5:
+        D.append(Q.dequeue())
+print(f"Step 4: {Q}, {D}")
+
+while D[0] != 1:
+    Q.enqueue(D.popleft())
+print(f"Step 5: {Q}, {D}")
+
+while not Q.is_empty():
+    D.append(Q.dequeue())
+print(f"Step 6: {Q}, {D}")
+"""
+
+# R-6.14
+"""Repeat the previous problem using the deque D and an initially empty stack S.
+
+Start: (1, 2, 3, 4, 5, 6, 7, 8)
+Result: (1, 2, 3, 5, 4, 6, 7, 8)"""
+
+
+"""
+class ArrayStack:
+    def __init__(self):
+        self._data = deque()
+
+    def __str__(self):
+        return f"Stack({self._data})"
+
+    def __len__(self):
+        return len(self._data)
+
+    def pop(self):
+        return self._data.pop()
+
+    def push(self, e):
+        self._data.append(e)
+
+    def first(self):
+        return self._data[-1]
+
+    def is_empty(self):
+        return len(self._data) == 0
+
+
+
+D = deque([1, 2, 3, 4, 5, 6, 7, 8])
+S = ArrayStack()
+
+def print_step(n):
+    print(f"Step {n}: {S}, {D}")
+
+# [] // 1, 2, 3, 4, 5, 6, 7, 8
+# [1, 2, 3, 4, 5, 6, 7, 8] // []
+# [1, 2, 3, 4, 5] // [6, 7, 8]
+# [1, 2, 3] // 4, 6, 7, 8, 5
+# [1, 2, 3, 5] // 4, 6, 7, 8
+# [] // 1, 2, 3, 5, 4, 6, 7, 8
+
+
+
+while len(D) != 0:
+    S.push(D.popleft())
+print_step(1)
+
+while len(D) == 0 or D[0] != 6:
+    D.appendleft(S.pop())
+print_step(2)
+
+while S.first() in (4, 5):
+    if S.first() == 4:
+        D.appendleft(S.pop())
+    elif S.first() == 5:
+        D.append(S.pop())
+print_step(3)
+
+if D[-1] == 5:
+    S.push(D.pop())
+print_step(4)
+
+while len(S) != 0:
+    D.appendleft(S.pop())
+print_step(5)
+"""
