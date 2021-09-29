@@ -202,7 +202,7 @@ delete_first()    6
 have an initially empty queue Q. Give a code fragment that uses only D and Q (and no other variable) and results in D
 storing the elements in the order (1, 2, 3, 5, 4, 6, 7, 8). [note 5 and 4 are swapped]"""
 
-"""
+
 D = deque([1, 2, 3, 4, 5, 6, 7, 8])
 Q = ArrayQueue()
 
@@ -240,7 +240,7 @@ print(f"Step 5: {Q}, {D}")
 while not Q.is_empty():
     D.append(Q.dequeue())
 print(f"Step 6: {Q}, {D}")
-"""
+
 
 # R-6.14
 """Repeat the previous problem using the deque D and an initially empty stack S.
