@@ -37,7 +37,11 @@ class ArrayStack:
         return f"Stack({self._data[:self._n] if self._maxlen else self._data})"
 
     def __len__(self):
-        return self._n
+        return self._n if self._maxlen else len(self._data)
+
+    def __eq__(self, other):
+        if isinstance(other, list):
+            return  self._data == other
 
     def pop(self):
         if self.is_empty():
@@ -158,14 +162,4 @@ print(is_matched_html(s))
 """Describe a nonrecursive algorithm for enumerating all permutations of the numbers {1, 2, ..., n} using an explicit
 stack."""
 
-# [1, 2, 3]
-# [1, 3, 2]
-# [2, 1, 3]
-# [2, 3, 1]
-# [3, 1, 2]
-# [3, 2, 1]
-
-def permutate(numbers):
-    S = ArrayStack()
-    for letter in numbers:
-        S.push(letter)
+# TODO: Super difficult! Come back to it later.
