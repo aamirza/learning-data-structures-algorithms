@@ -237,3 +237,83 @@ def get_all_subsets(T: set):
         print(Q.dequeue())
 
 get_all_subsets({1, 2, 3})
+
+# C-6.22
+"""
+Postfix notation is an unambiguous way of writing an arithmetic expression without paranthesis. It is defined so that
+Postfix notation is an unambiguous way of writing an arithmetic expres- sion without parentheses. It is defined so that 
+if “(exp1)op(exp2)” is a normal, fully parenthesized expression whose operation is op, the postfix version of this is 
+“pexp1 pexp2 op”, where pexp1 is the postfix version of exp1 and pexp2 is the postfix version of exp2. The postfix 
+version of a sin- gle number or variable is just that number or variable. For example, the postfix version of 
+“((5+2)∗(8−3))/4” is “5 2 + 8 3 − ∗ 4 /”. Describe a nonrecursive way of evaluating an expression in postfix notation.
+"""
+
+def postfix_calculator(postfix_expression):
+    """
+    >>> postfix_calculator("5 2 + 8 3 - * 4 /")
+    8.75
+    >>> postfix_calculator("5 7 + 8 10 + 2 * /") == 1/3 # (5 + 7)/(2 * (8 + 10))
+    True
+    """
+    expression_list = postfix_expression.split(' ')
+    expressions = deque()
+    evaluated_expressions = deque()
+    for expression in expression_list:
+        try:
+            expression = int(expression)
+            expressions.append(expression)
+        except ValueError:
+            if expression not in ('+', '-', '*', '/'):
+                raise ValueError('Invalid expression.')
+            operand = expression
+            if len(expressions) > 0:
+                if len(expressions) > 1:
+                    statement_to_evaluate = f'{expressions.popleft()} {operand} {expressions.popleft()}'
+                elif len(expressions) == 1:
+                    statement_to_evaluate = f'{evaluated_expressions.pop()} {operand} {expressions.popleft()}'
+            else:
+                statement_to_evaluate = f'{evaluated_expressions.popleft()} {operand} {evaluated_expressions.popleft()}'
+            answer = eval(statement_to_evaluate)
+            evaluated_expressions.append(answer)
+    if len(evaluated_expressions) != 1:
+        raise ValueError('Wrong number of parantheses')
+    return evaluated_expressions.pop()
+
+
+# C-6.23
+"""Suppose you have three nonempty stacks R, S, and T. Describe a sequence of operations that results in S storing all
+elements originally in T below all of S's original elements, with both sets of those elements in their original order.
+
+For example, if R = [1, 2, 3], S = [4, 5], and T = [6, 7, 8, 9], the final configuration should have R = [1, 2, 3] and 
+S = [6, 7, 8, 9, 4, 5]"""
+
+def stack_transfer(R, S ,T):
+    """
+    >>> R = [1, 2, 3]
+    >>> S = [4, 5]
+    >>> T = [6, 7, 8, 9]
+    >>> stack_transfer(R, S, T)
+    >>> S
+    [6, 7, 8, 9, 4, 5]
+    >>> R
+    [1, 2, 3]
+    >>> T
+    []
+    >>> R = [5]
+    >>> S = [7, 9, 2, 5]
+    >>> T = [3, 7, 5, 5]
+    >>> stack_transfer(R, S, T)
+    >>> R
+    [5]
+    >>> S
+    [3, 7, 5, 5, 7, 9, 2, 5]
+    >>> T
+    []
+    """
+    original_length = len(R)
+    while len(S) > 0:
+        R.append(S.pop())
+    while len(T) > 0:
+        R.append(T.pop())
+    while len(R) != original_length:
+        S.append(R.pop())
