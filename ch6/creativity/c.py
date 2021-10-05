@@ -160,6 +160,80 @@ print(is_matched_html(s))
 
 # C-6.20
 """Describe a nonrecursive algorithm for enumerating all permutations of the numbers {1, 2, ..., n} using an explicit
-stack."""
+stack.
 
-# TODO: Super difficult! Come back to it later.
+Hint: Use a stack to reduce the problem to that of enumerating all permutations of the numbers {1,2,...,n−1}"""
+
+
+from collections import deque
+
+def permutate(number):
+    nums = {x for x in range(1, number+1)}
+    S = ArrayStack()
+
+    for num in nums:
+        S.push(([num], nums - {num}))
+
+    while not S.is_empty():
+        l, remaining = S.pop()
+        if len(remaining) == 0:
+            print(l)
+        else:
+            for n in remaining:
+                l2 = l.copy()
+                l2.append(n)
+                S.push((l2, nums - set(l2)))
+
+# C-6.21
+"""Show how to use a stack S and a queue Q to generate all possible subsets of an n-element set T non-recursively
+
+Hint: Use the stack to store the elements yet to be used to generate subsets and use the queue to store the subsets 
+generated so far."""
+
+
+from collections import deque
+
+
+class ArrayQueue:
+    def __init__(self):
+        self._data = deque()
+
+    def __str__(self):
+        return f"Queue({self._data})"
+
+    def __len__(self):
+        return len(self._data)
+
+    def enqueue(self, value):
+        self._data.append(value)
+
+    def dequeue(self):
+        return self._data.popleft()
+
+    def first(self):
+        return self._data[0]
+
+    def is_empty(self):
+        return len(self._data) == 0
+
+
+def get_all_subsets(T: set):
+    S = ArrayStack()  # Use S to store k, set, universe
+    Q = ArrayQueue()
+
+    S.push([[], {num for num in T}])
+
+    while not S.is_empty():
+        old_S, old_T = S.pop()
+        if len(old_S) > 0:
+            Q.enqueue(old_S)
+        new_T = {element for element in old_T}
+        for element in old_T:
+            new_S = old_S + [element] if old_S else [element]
+            new_T = new_T.difference({element})
+            S.push([new_S, new_T])
+
+    while not Q.is_empty():
+        print(Q.dequeue())
+
+get_all_subsets({1, 2, 3})
