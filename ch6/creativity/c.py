@@ -317,3 +317,415 @@ def stack_transfer(R, S ,T):
         R.append(T.pop())
     while len(R) != original_length:
         S.append(R.pop())
+
+
+# C-6.24
+"""Describe how to implement the stack ADT using a single queue as an instance variable, and only constant additional 
+local memory within the method bodies. What is the running time of the push(), pop(), and top() methods for your design?
+"""
+
+class ArrayStackButActuallyQueue():
+    def __init__(self):
+        self._data = ArrayQueue()
+
+    def __len__(self):
+        return len(self._data)
+
+    def pop(self):
+        if self.is_empty():
+            raise Empty('Stack is empty')
+        return self._data.dequeue()
+
+    def push(self, e):
+        if self.is_empty():
+            self._data.enqueue(e)
+        else:
+            new_queue = ArrayQueue()
+            new_queue.enqueue(e)
+            while not self._data.is_empty():
+                new_queue.enqueue(self._data.dequeue())
+            self._data = new_queue
+
+
+    def top(self):
+        if self.is_empty():
+            raise Empty('Stack is empty')
+        return self._data.first()
+
+    def is_empty(self):
+        return len(self) == 0
+
+# curious_stack = ArrayStackButActuallyQueue()
+# try:
+#     curious_stack.pop()
+# except Empty:
+#     print('pass')
+# curious_stack.push(5)
+# print(curious_stack.top())
+# curious_stack.push(10)
+# print(curious_stack.top())
+# print(curious_stack.pop())
+# print(len(curious_stack))
+# print(curious_stack.pop())
+# print(curious_stack.is_empty())
+
+# The running time of push is O(n) where n is the existing length of the stack.
+# The running time of pop is O(1)
+# The running time of top is O(1)
+
+# C-6.25
+"""Describe how to implement the queue ADT using two stacks as instance variables, such that all queue operations 
+execute in amortized O(1) time. Give a formal proof of the amortized bound."""
+
+class ArrayQueueButActuallyStack():
+    """
+    >>> disorganized_queue = ArrayQueueButActuallyStack()
+    >>> len(disorganized_queue) == 0
+    True
+    >>> disorganized_queue.enqueue(5)
+    >>> disorganized_queue.enqueue(6)
+    >>> disorganized_queue.first()
+    5
+    >>> disorganized_queue.dequeue()
+    5
+    >>> len(disorganized_queue)
+    1
+    >>> disorganized_queue.first()
+    6
+    >>> len(disorganized_queue)
+    1
+    >>> disorganized_queue.enqueue(7)
+    >>> disorganized_queue.first()
+    6
+    >>> disorganized_queue.enqueue(10)
+    >>> disorganized_queue.enqueue(7)
+    >>> disorganized_queue.enqueue(8)
+    >>> len(disorganized_queue)
+    5
+    >>> disorganized_queue.first()
+    6
+    >>> disorganized_queue.dequeue()
+    6
+    >>> disorganized_queue.dequeue()
+    7
+    >>> disorganized_queue.dequeue()
+    10
+    >>> disorganized_queue.dequeue()
+    7
+    >>> disorganized_queue.dequeue()
+    8
+    >>> disorganized_queue.is_empty()
+    True
+    """
+    def __init__(self):
+        self._data = ArrayStack()
+        self._storage = ArrayStack()
+
+    def __len__(self):
+        return len(self._data) + len(self._storage)
+
+    def _need_to_transfer_storage(self):
+        return len(self._data) == 0 and len(self._storage) >= 1
+
+    def _transfer_storage(self):
+        while len(self._storage) != 0:
+            self._data.push(self._storage.pop())
+
+    def enqueue(self, value):
+        if len(self._storage) > 0 or len(self._data) >= 1:
+            self._storage.push(value)
+        elif len(self._data) == 0:
+            self._data.push(value)
+
+    def dequeue(self):
+        if self.is_empty():
+            Empty('Queue is empty')
+
+        if self._need_to_transfer_storage():
+            self._transfer_storage()
+
+        return self._data.pop()
+
+    def first(self):
+        if self.is_empty():
+            Empty("Queue is empty")
+
+        if self._need_to_transfer_storage():
+            self._transfer_storage()
+
+        return self._data.top()
+
+
+    def is_empty(self):
+        return len(self._data) == 0 and len(self._storage) == 0
+
+"""All of enqueue, dequeue and first take amoritized O(1) time.
+
+With enqueue it is straightforward. The if conditions of checking lengths take O(1) time, and the pushing to a stack 
+also takes O(1) time.
+
+With dequeue, the first pop will be O(1). Once self._data is empty, all the elements in self._storage are transfered
+onto self._data, this takes O(n) time where n is the length of self._storage. Then all subsequent pop operations take
+O(1) time until self._data is empty.
+
+It is the same with first."""
+
+
+# C-6.26
+"""Describe how to implement the double-ended queue ADT using two stacks as instance variables. What are the running
+times of the methods?"""
+
+class ArrayDequeueButActuallyStack:
+    """
+    >>> dq = ArrayDequeueButActuallyStack()
+    >>> dq.is_empty()
+    True
+    >>> dq.appendleft(5)
+    >>> dq.append(7)
+    >>> dq.pop()
+    7
+    >>> len(dq)
+    1
+    >>> dq.last()
+    5
+    >>> dq.first()
+    5
+    >>> dq.appendleft(8)
+    >>> dq.appendleft(9)
+    >>> dq.last()
+    5
+    >>> dq.popleft()
+    9
+    >>> dq.pop()
+    5
+    >>> dq.pop()
+    8
+    >>> dq.is_empty()
+    True
+    >>> dq.append(8)
+    >>> dq.append(4)
+    >>> dq.first()
+    8
+    """
+    def __init__(self):
+        self._left = ArrayStack()
+        self._right = ArrayStack()
+
+    def __len__(self):
+        return len(self._left) + len(self._right)
+
+    def _left_is_empty(self):
+        return len(self._left) == 0
+
+    def _right_is_empty(self):
+        return len(self._right) == 0
+
+    def _transfer_right_to_left(self):
+        while not self._right.is_empty():
+            self._left.push(self._right.pop())
+
+    def _transfer_left_to_right(self):
+        while not self._left.is_empty():
+            self._right.push(self._left.pop())
+
+    def _need_to_transfer_right_to_left(self):
+        return self._left_is_empty() and not self._right_is_empty()
+
+    def _need_to_transfer_left_to_right(self):
+        return self._right_is_empty() and not self._left_is_empty()
+
+    def _raise_error_if_empty(self):
+        if self.is_empty():
+            raise Empty('deque is empty')
+
+    def appendleft(self, e):
+        self._left.push(e)
+
+    def append(self, e):
+        self._right.push(e)
+
+    def popleft(self):
+        self._raise_error_if_empty()
+
+        if self._need_to_transfer_right_to_left():
+            self._transfer_right_to_left()
+
+        return self._left.pop()
+
+    def pop(self):
+        self._raise_error_if_empty()
+
+        if self._need_to_transfer_left_to_right():
+            self._transfer_left_to_right()
+            
+        return self._right.pop()
+
+    def first(self):
+        self._raise_error_if_empty()
+        
+        if self._need_to_transfer_right_to_left():
+            self._transfer_right_to_left()
+        
+        return self._left.top()
+
+    def last(self):
+        self._raise_error_if_empty()
+        
+        if self._need_to_transfer_left_to_right():
+            self._transfer_left_to_right()
+        
+        return self._right.top()
+
+    def is_empty(self):
+        return len(self) == 0
+
+# The amoritized running time is O(1) for all operations. However, constanty doing first() and last() operations will
+# result in O(n) running time.
+
+# C-6.27
+"""Suppose you have a stack S containing n elements and a queue Q that is initally empty. Describe how you can use
+Q to scan S to see if it contains a certain element x, with additional constraint that you algorithm must return the
+elements back to S in their original order. You may only use S and Q, and a constant number of other variables."""
+
+def find_in_stack(S, x):
+    """
+    >>> s = ArrayStack()
+    >>> s.push(5)
+    >>> s.push(87)
+    >>> s.push(9)
+    >>> s.push(10)
+    >>> s.push(10)
+    >>> find_in_stack(s, 87)
+    3
+    >>> find_in_stack(s, 39)
+    -1
+    >>> find_in_stack(s, 10)
+    0
+    """
+    Q = ArrayQueue()
+    i = 0
+    try:
+        while S.top() != x:
+            Q.enqueue(S.pop())
+            i += 1
+    except Empty:
+        i = -1
+
+    pass_through = 0
+    NEEDED_PASS_THROUGHS = 1
+    q_len = len(Q)
+    while not Q.is_empty():
+        S.push(Q.dequeue())
+        if Q.is_empty() and pass_through < NEEDED_PASS_THROUGHS:
+            pass_through += 1
+            while len(Q) != q_len:
+                Q.enqueue(S.pop())
+    return i
+
+
+# C-6.28
+"""Modify the ArrayQueue implementation so that the queue's capacity is limited to maxlen elements, where maxlen is an 
+optional parameter to the constructor (that defaults to None). If enqueue is called when the queue is at full capacity,
+throw a Full exception (defined similarly to empty)."""
+
+class ArrayQueueBoring:
+    """
+    >>> q = ArrayQueueBoring(maxlen=3)
+    >>> q.is_empty()
+    True
+    >>> q.enqueue(3)
+    >>> q.enqueue(2)
+    >>> q.dequeue()
+    3
+    >>> q.first()
+    2
+    >>> len(q)
+    1
+    >>> q.enqueue(3)
+    >>> q.first()
+    2
+    >>> q.enqueue(5)
+    >>> len(q)
+    3
+    >>> q.enqueue(4) # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    c.Full: Queue is full.
+    >>> q.dequeue()
+    2
+    >>> q.first()
+    3
+    >>> q.dequeue()
+    3
+    >>> q.first()
+    5
+    >>> q.dequeue()
+    5
+    >>> q.is_empty()
+    True
+    >>> q.dequeue() # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    c.Empty: Queue is empty.
+    >>> q2 = ArrayQueueBoring()
+    >>> q2.is_empty()
+    True
+    >>> q.enqueue(3)
+    >>> q.first()
+    3
+    >>> q.enqueue(2)
+    >>> len(q)
+    2
+    >>> q.dequeue()
+    3
+    >>> q.enqueue(3)
+    >>> q.first()
+    2
+    >>> len(q)
+    2
+    >>> q.dequeue()
+    2
+    >>> q.dequeue()
+    3
+    >>> q.dequeue() # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    c.Empty: Queue is empty
+    """
+    def __init__(self, maxlen=None):
+        self._data = [None] * maxlen if maxlen else []
+        self._maxlen = maxlen
+        self._n = 0
+        self._start = 0
+
+    def __len__(self):
+        return self._n
+
+    def enqueue(self, e):
+        if not self._maxlen:
+            self._data.append(e)
+            self._n += 1
+        elif self._n < self._maxlen:
+            self._data[(self._n + self._start) % self._maxlen] = e
+            self._n += 1
+        else:
+            raise Full("Queue is full.")
+
+    def dequeue(self):
+        if self.is_empty():
+            raise Empty("Queue is empty.")
+
+        value = self._data[self._start]
+        self._data[self._start] = None
+        self._start += 1
+        if self._maxlen:
+            self._start = self._start % self._maxlen
+        self._n -= 1
+        return value
+
+    def first(self):
+        if self.is_empty():
+            raise Empty("Queue is empty")
+
+        return self._data[self._start]
+
+
+    def is_empty(self):
+        return self._n == 0
