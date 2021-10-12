@@ -698,6 +698,12 @@ class ArrayQueueBoring:
     def __len__(self):
         return self._n
 
+    def _clean(self):
+        """Remove all Nones from list if more than half of list is None."""
+        if not self._maxlen and self._start > self._n:
+            self._data = self._data[self._start:]
+            self._start = 0
+
     def enqueue(self, e):
         if not self._maxlen:
             self._data.append(e)
@@ -718,6 +724,7 @@ class ArrayQueueBoring:
         if self._maxlen:
             self._start = self._start % self._maxlen
         self._n -= 1
+        self._clean()
         return value
 
     def first(self):
@@ -729,3 +736,81 @@ class ArrayQueueBoring:
 
     def is_empty(self):
         return self._n == 0
+
+
+# C-6.29
+"""In certain applications of the queue ADT, it is common to repeatedly dequeue an element, process it in some way, and 
+then immediately enqueue the same element. Modify the ArrayQueue implementation to include a rotate() method that has 
+semantics identical to the combination, Q.enqueue(Q.dequeue()). However, your implementation should be more efficient
+ than making two separate calls (for example, because there is no need to modify size)."""
+
+class RotatableQueue(ArrayQueueBoring):
+    """
+    >>> q = RotatableQueue()
+    >>> q.enqueue(5)
+    >>> q.enqueue(3)
+    >>> q.enqueue(2)
+    >>> q.first()
+    5
+    >>> q.rotate()
+    >>> q.first()
+    3
+    >>> len(q)
+    3
+    >>> q.rotate()
+    >>> q.first()
+    2
+    >>> q.rotate()
+    >>> q.first()
+    5
+    >>> len(q)
+    3
+    >>> q.rotate()
+    >>> q.dequeue()
+    3
+    >>> q.dequeue()
+    2
+    >>> q.dequeue()
+    5
+    >>> q.rotate() # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    c.Empty: Queue is empty
+    """
+    def __init__(self, maxlen=None):
+        super().__init__(maxlen)
+
+    def rotate(self):
+        # Dequeue, then enqueue the same element.
+        if self.is_empty():
+            raise Empty("Queue is empty.")
+
+        if self._maxlen:
+            self._start += 1
+            self._start = self._start % self._maxlen
+        else:
+            # It is more efficient to modify the size than to move everything around if queue has a limitless length.
+            self.enqueue(self.dequeue())
+
+# C-6.30
+"""Alice has two queues, Q and R, which can store integers. Bob gives Alice 50 odd integers and 50 even integers and 
+insists that she store all 100 integers in Q and R. They then play a game where Bob picks Q or R at random and then 
+applies the round-robin scheduler, described in the next chapter, to the chosen queue a random number of times. If the 
+last number to be processed at the end of this game was odd, Bob wins. Otherwise, Alice wins. How can Alice allocate 
+integers to queues to optimize her chances of winning? What is her chance of winning?"""
+
+
+# What is Round-Robin Scheduler?
+
+# A round-robin scheduler could be implemented with the queue ADT, by repeatedly performing the following steps on
+# queue Q:
+    # 1. e = Q.dequeue()
+    # 2. Service element e.
+    # 3. Q.enqueue()
+
+# So basically, Bob is going to rotate queues a random number of times. Bob wins if the last integer was odd.
+
+# If one Q is full of even numbers and R is full of odd numbers, then the chance of winning is 50%.
+
+# First create a queue of just one number that is even. That automatically creates a minimum 50% chance of winning.
+# The next queue will have 49 even numbers and 50 odd numbers. There is a 49/99 chance of winning, or 49.5% chance.
+# The chance of winning now will be 1 - (1/2 * 50/99) = 74.75% chance of winning.
