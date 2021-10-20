@@ -814,3 +814,20 @@ integers to queues to optimize her chances of winning? What is her chance of win
 # First create a queue of just one number that is even. That automatically creates a minimum 50% chance of winning.
 # The next queue will have 49 even numbers and 50 odd numbers. There is a 49/99 chance of winning, or 49.5% chance.
 # The chance of winning now will be 1 - (1/2 * 50/99) = 74.75% chance of winning.
+
+
+# C-6.31
+"""Suppose Bob has four cows that he wants to take across a bridge, but only one yoke, which can hold up to two cows,
+ side by side, tied to the yoke. The yoke is too heavy for him to carry across the bridge, but he can tie (and untie)
+ cows to it in no time at all. Of his four cows, Mazie can cross the bridge in 2 minutes, Daisy can cross in 4 minutes, 
+ Crazy can cross it in 10 minutes, and Lazy can cross it in 20 minutes. Of course, when two cows are tied to the yoke,
+ they must go at the speed of the slower cow. Describe how Bob can get all his cows across the bridge in 34 minutes."""
+
+
+# "Too heavy for him to carry across the bridge" = He needs cows to do it.
+
+# Carry Mazie and Daisy, 4 minutes.
+# Go back with Mazie, 2 minutes (total: 6 minutes)
+# Carry Crazy and Lazy, 20 minutes (total: 26 minutes).
+# Go back with Daisy, 4 minutes (total: 30 minutes)
+# Carry Mazie and Daisy, 4 minutes (total: 34 minutes).
