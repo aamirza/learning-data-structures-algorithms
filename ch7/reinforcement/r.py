@@ -60,15 +60,17 @@ class LinkedStack:
 
 
 def get_nth_last(L, n=0):
+    if n <= 0:
+        raise ValueError("nth-last position must be higher than 0.")
     position = L.head
     stack = LinkedStack()
     while position.next is not None:
         stack.push(position)
         position = position.next
     while n != 0:
-        value = stack.pop()
+        nth_position = stack.pop()
         n -= 1
-    return n
+    return nth_position
 
 
 # R-7.2
@@ -114,11 +116,12 @@ def join_lists(L, M):
     WARNING: Will give an inaccurate size and _tail.
     """
     new_list = LinkedList()
-    new_list.append(L)
-    while L is not None:
-        new_list.append(L.next)
+    new_list.add_first(L.head)
+    while L.next is not None:
+        new_list.add_after(L, L.next)
         L = L.next
-    new_list.append(M)
+    new_list.add_after(M.head)
+    new_list.size = L.size + M.size
     return new_list
 
 
@@ -250,13 +253,13 @@ this method must only use link hopping; it cannot use a counter.) What is the ru
 a single list L'"""
 
 def combine_doubly_linked_lists(L, M):
-    new_L = L
-    new_L.trailer = M.head
-    new_L.trailer = M.trailer
-    return new_L
+    L.tail.next = M.head
+    L.tail = M.tail
+    L.size = L.size + M.size
+    return L
 
 # R-7.10
-"""There seems to be some redundancy in the repertoire of the positional list ADT, as the operation L.add_first(e) could
+"""There seems to be some redundancy in the repertoire of the positional lisze + M.sizet ADT, as the operation L.add_first(e) could
 be enacted by the alternative L.add_before(L.first(), e). Likewise, L.add_last(e) might be performed as 
 L.add_after(L.last(), e). Explain why the methods add_first and add_last are necessary."""
 
@@ -704,8 +707,10 @@ class PositionalList2(_DoublyLinkedBase):
 
     def add_before(self, p, e):
         """Insert element e into list before Position p and return new Position."""
+        # original = self._validate(p)
+        # return self._insert_between(e, original._prev, original)
         original = self._validate(p)
-        return self._insert_between(e, original._prev, original)
+        return self.add_after(original._prev, e)
 
     def add_after(self, p, e):
         """Insert element e into list after Position p and return new Position."""
@@ -726,3 +731,49 @@ class PositionalList2(_DoublyLinkedBase):
         old_value = original._element  # temporarily store old element
         original._element = e  # replace with new element
         return old_value  # return the old element value
+
+    def move_to_front(self, p):
+        if p == self.first():
+            return
+        original: super()._Node = self._validate(p)
+        predecessor = original._next
+        successor = original._prev
+        predecessor._next = successor
+        successor._prev = predecessor
+        original._next = self.first()
+        original._prev = self._header
+        self._header._next = original
+
+
+
+# R-7.17
+"""In the FavoritesListMTF class, we rely on public methods of the positional list ADT to move an element of a list at
+position p to become the first element of the list, while keeping the relative order of the remaining elements unchanged.
+Internally, that combination of operations cuases one node to be removed and a new node to be inserted. Augment the
+PositionalList class to support a new method, move_to_front(p), that accomplishes this goal more directly, by relinking
+the existing node."""
+
+
+# R-7.18
+
+"""Given the set of elements {a, b, c, d, e, f} stored in a list, show the final state of the list, assuming we use the
+move-to-front heuristic and access the elements according to the following sequence: (a, b, c, d, e, f, a, c, f, b, d, e
+)."""
+
+# a b c d e f  # move a
+# b a c d e f  # move b
+# c b a d e f  # move c
+# d c b a e f  # move d
+# e d c b a f  # move e
+# f e d c b a  # move f
+# a f e d c b  # move a
+# c a f e d b  # move c
+# f c a e d b  # move f
+# b f c a e d  # move b
+# d b f c a e  # move d
+# e d b f c a  # move e
+
+
+# R-7.19
+"""Suppose that we have made kn total accesses to the elements in a list L of n elements, for some integer k >= 1. What
+are the minimum and maximum number of elements that have been accessed fewer than k times?"""
