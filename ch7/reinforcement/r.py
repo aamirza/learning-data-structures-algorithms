@@ -777,3 +777,123 @@ move-to-front heuristic and access the elements according to the following seque
 # R-7.19
 """Suppose that we have made kn total accesses to the elements in a list L of n elements, for some integer k >= 1. What
 are the minimum and maximum number of elements that have been accessed fewer than k times?"""
+
+# The maximum would be n - 1, if one element was accessed kn times.
+# The minimum would be 0 if all elements have been accessed exactly once, since k >= 1.
+
+
+# R-7.20
+"""Let L be a list of n items maintained according to the move-to-front heuristic. Describe a series of O(n) accesses
+that will reverse L."""
+
+# Iterate through the list until you reach the end. Accessing the last element last will put it first, second last would
+# move to the second and so on.
+
+# R-7.21
+"""Suppose we have an n-element list L maintained according to the move-to-front heuristic. Describe a sequence of n^2
+accesses that is guaranteed to take Ω(n^3) time to perform on L."""
+
+
+# Swapping two spots on an MFT list should take n^3 time.
+
+# You will need to keep the list sorted. So as you try to find each element, say on position 5, each element accessed
+# gets moved to the front. Once you get to position 5, you need to start from the front of the list again in order to
+# keep the list sorted. You then search for the next position, you swap the two nodes, and then you have to sort the list
+# again.
+
+# TODO: Answer again later.
+
+
+# R-7.22
+"""Implement a clear() method for the FavoritesList class that returns the list to empty."""
+
+
+class FavoritesList:
+    """List of elements ordered from most frequently accessed to least."""
+
+    # ------------------------------ nested _Item class ------------------------------
+    class _Item:
+        __slots__ = '_value', '_count'  # streamline memory usage
+
+        def __init__(self, e):
+            self._value = e  # the user's element
+            self._count = 0  # access count initially zero
+
+    # ------------------------------- nonpublic utilities -------------------------------
+    def _find_position(self, e):
+        """Search for element e and return its Position (or None if not found)."""
+        walk = self._data.first()
+        while walk is not None and walk.element()._value != e:
+            walk = self._data.after(walk)
+        return walk
+
+    def _move_up(self, p):
+        """Move item at Position p earlier in the list based on access count."""
+        if p != self._data.first():  # consider moving...
+            cnt = p.element()._count
+            walk = self._data.before(p)
+            if cnt > walk.element()._count:  # must shift forward
+                while (walk != self._data.first() and
+                       cnt > self._data.before(walk).element()._count):
+                    walk = self._data.before(walk)
+                self._data.add_before(walk, self._data.delete(p))  # delete/reinsert
+
+    # ------------------------------- public methods -------------------------------
+    def __init__(self):
+        """Create an empty list of favorites."""
+        self._data = PositionalList()  # will be list of _Item instances
+
+    def __len__(self):
+        """Return number of entries on favorites list."""
+        return len(self._data)
+
+    def is_empty(self):
+        """Return True if list is empty."""
+        return len(self._data) == 0
+
+    def access(self, e):
+        """Access element e, thereby increasing its access count."""
+        p = self._find_position(e)  # try to locate existing element
+        if p is None:
+            p = self._data.add_last(self._Item(e))  # if new, place at end
+        p.element()._count += 1  # always increment count
+        self._move_up(p)  # consider moving forward
+
+    def remove(self, e):
+        """Remove element e from the list of favorites."""
+        p = self._find_position(e)  # try to locate existing element
+        if p is not None:
+            self._data.delete(p)  # delete, if found
+
+    def top(self, k):
+        """Generate sequence of top k elements in terms of access count."""
+        if not 1 <= k <= len(self):
+            raise ValueError('Illegal value for k')
+        walk = self._data.first()
+        for j in range(k):
+            item = walk.element()  # element of list is _Item
+            yield item._value  # report user's element
+            walk = self._data.after(walk)
+
+    def __repr__(self):
+        """Create string representation of the favorites list."""
+        return ', '.join('({0}:{1})'.format(i._value, i._count) for i in self._data)
+
+    def clear(self):
+        """Empty the list."""
+        cursor = self._data.first()
+        while cursor is not None:
+            cursor = self._data.after(cursor)
+            self._data.delete(self._data.before(cursor))
+
+    def reset_counts(self):
+        cursor = self._data.first()
+        while cursor is not None:
+            cursor.element()._count = 0
+            cursor = self._data.after(cursor)
+
+# R-7.23
+"""Implement a reset_counts() method for FavoritesList class that rests all elements' access counts to zero (while 
+leaving the order of the list unchanged)."""
+
+# Implemented above!
