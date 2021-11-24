@@ -384,25 +384,25 @@ class ArrayQueueButActuallyStack():
     True
     >>> disorganized_queue.enqueue(5)
     >>> disorganized_queue.enqueue(6)
-    >>> disorganized_queue.first()
+    >>> disorganized_queue._first_node()
     5
     >>> disorganized_queue.dequeue()
     5
     >>> len(disorganized_queue)
     1
-    >>> disorganized_queue.first()
+    >>> disorganized_queue._first_node()
     6
     >>> len(disorganized_queue)
     1
     >>> disorganized_queue.enqueue(7)
-    >>> disorganized_queue.first()
+    >>> disorganized_queue._first_node()
     6
     >>> disorganized_queue.enqueue(10)
     >>> disorganized_queue.enqueue(7)
     >>> disorganized_queue.enqueue(8)
     >>> len(disorganized_queue)
     5
-    >>> disorganized_queue.first()
+    >>> disorganized_queue._first_node()
     6
     >>> disorganized_queue.dequeue()
     6
@@ -488,7 +488,7 @@ class ArrayDequeueButActuallyStack:
     1
     >>> dq.last()
     5
-    >>> dq.first()
+    >>> dq._first_node()
     5
     >>> dq.appendleft(8)
     >>> dq.appendleft(9)
@@ -504,7 +504,7 @@ class ArrayDequeueButActuallyStack:
     True
     >>> dq.append(8)
     >>> dq.append(4)
-    >>> dq.first()
+    >>> dq._first_node()
     8
     """
     def __init__(self):
@@ -637,12 +637,12 @@ class ArrayQueueBoring:
     >>> q.enqueue(2)
     >>> q.dequeue()
     3
-    >>> q.first()
+    >>> q._first_node()
     2
     >>> len(q)
     1
     >>> q.enqueue(3)
-    >>> q.first()
+    >>> q._first_node()
     2
     >>> q.enqueue(5)
     >>> len(q)
@@ -652,11 +652,11 @@ class ArrayQueueBoring:
     c.Full: Queue is full.
     >>> q.dequeue()
     2
-    >>> q.first()
+    >>> q._first_node()
     3
     >>> q.dequeue()
     3
-    >>> q.first()
+    >>> q._first_node()
     5
     >>> q.dequeue()
     5
@@ -669,7 +669,7 @@ class ArrayQueueBoring:
     >>> q2.is_empty()
     True
     >>> q.enqueue(3)
-    >>> q.first()
+    >>> q._first_node()
     3
     >>> q.enqueue(2)
     >>> len(q)
@@ -677,7 +677,7 @@ class ArrayQueueBoring:
     >>> q.dequeue()
     3
     >>> q.enqueue(3)
-    >>> q.first()
+    >>> q._first_node()
     2
     >>> len(q)
     2
@@ -750,18 +750,18 @@ class RotatableQueue(ArrayQueueBoring):
     >>> q.enqueue(5)
     >>> q.enqueue(3)
     >>> q.enqueue(2)
-    >>> q.first()
+    >>> q._first_node()
     5
     >>> q.rotate()
-    >>> q.first()
+    >>> q._first_node()
     3
     >>> len(q)
     3
     >>> q.rotate()
-    >>> q.first()
+    >>> q._first_node()
     2
     >>> q.rotate()
-    >>> q.first()
+    >>> q._first_node()
     5
     >>> len(q)
     3
