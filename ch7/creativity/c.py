@@ -1,5 +1,6 @@
 # C-7.24
 """Give a complete implementation of the stack ADT using a singly linked list that includes a header sentinel."""
+import collections
 import html.parser
 
 
@@ -566,7 +567,7 @@ class _DoublyLinkedBase:
           cursor = next
 
 
-class PositionalList(_DoublyLinkedBase):
+class PositionalList(_DoublyLinkedBase, collections.Iterator):
     """A sequential container of elements allowing positional access.
 
     >>> pl = PositionalList()
@@ -597,13 +598,26 @@ class PositionalList(_DoublyLinkedBase):
     >>> second = pl.after(pl.first())
     >>> second.element()
     8
+    >>> before_second = pl.before(second)
+    >>> before_second.element()
+    5
     >>> third = pl.after(second)
     >>> third.element()
     10
     >>> fourth = pl.after(third)
     >>> fourth.element()
     17
-    >>> trailer = pl.after(fourth)
+    >>> next(pl)
+    5
+    >>> next(pl)
+    8
+    >>> next(pl)
+    10
+    >>> next(pl)
+    17
+    >>> next(pl) # last
+    Traceback (most recent call last):
+    StopIteration
     """
 
     # -------------------------- nested Position class --------------------------
@@ -632,6 +646,22 @@ class PositionalList(_DoublyLinkedBase):
         def __ne__(self, other):
             """Return True if other does not represent the same location."""
             return not (self == other)  # opposite of __eq__
+
+    # ------------------------------- iterators -------------------------------------
+
+    def __init__(self):
+        super().__init__()
+        self.cursor = None
+
+    def __next__(self):
+        if self.cursor is None and not self.is_empty():
+            self.cursor = self.first()
+        elif self.cursor.element() is not None:
+            self.cursor = self.after(self.cursor)
+
+        if self.cursor is None:
+            raise StopIteration
+        return self.cursor.element()
 
     # ------------------------------- utility methods -------------------------------
     def _validate(self, p):
@@ -719,13 +749,12 @@ class PositionalList(_DoublyLinkedBase):
 
     def swap(self, p, q):
         # 17, 8, 10, 5
+        #import pdb; pdb.set_trace()
         p_predecessor = self.before(p)._node if self.before(p) is not None else self._header
         p_successor = self.after(p)._node if self.after(p) is not None else self._trailer
-        q_predecessor = self.before(q) if self.before(q) is not None else self._header
-        q_successor = self.after(q) if self.after(q) is not None else self._trailer
+        q_predecessor = self.before(q)._node if self.before(q) is not None else self._header
+        q_successor = self.after(q)._node if self.after(q) is not None else self._trailer
 
-
-        #import pdb; pdb.set_trace()
         p_node = self._validate(p)  # 17
         q_node = self._validate(q)  # 5
 
@@ -743,3 +772,141 @@ class PositionalList(_DoublyLinkedBase):
 # C-7.34
 """Modify the PositionalList class to support a method swap(p, q) that causes the underlying nodes referenced by 
 positions p and q to be exchanged for each other. Relink the existing nodes; do not create any new nodes."""
+
+# Implemented above!
+
+
+# C-7.35
+"""To implement the iter method of the PositionalList class, we relied on the convenience of Python's generator syntax
+and the yield statement. Give an alternative implementation of iter by designing a nested iterator class."""
+
+# Implemented above!
+
+# C-7.36
+"""Give a complete implementation of the positional list ADT using a doubly linked list that does not include any 
+sentinel nodes"""
+
+# TODO: Maybe later, maybe not
+
+# C-7.37
+"""Implement a function that accepts a PositionalList L of n integers sorted in nondecreasing order, and another value
+V, and determines in O(n) time if there are two elements of L that sum precisely to V. The function should return a 
+pair of positions of such elements, if found, or None otherwise."""
+
+# -2 0 1 3 4 4 6 7 8 10 11 14
+# 19
+# -2 + 0 = -2
+# -2 + 1 = -1
+# -2 + 3 = 1
+# -2 + 4 = 2
+# -2 + 4 = 2
+# -2 + 6 = 4
+# -2 + 7 = 5
+# -2 + 8 = 6
+# -2 + 10 = 8
+# -2 + 11 = 9
+# -2 + 14 = 12
+# 0 + 14 = 14
+# 0 + 14 = 14
+# 1 + 14 = 15
+# 3 + 14 = 17
+# 4 + 14 = 18
+# 6 + 14 = 20
+# 6 + 11 = 17
+# 7 + 11 = 18
+# 7 + 14 = 21
+# 8 + 14 = 22
+# 8 + 11 = 19
+
+# -2 + 14 = 12
+# 0 + 14 = 14
+# 1 + 14 = 15
+# 3 + 14 = 17
+# 4 + 14 = 18
+# 4 + 14 = 18
+# 6 + 14 = 20
+# 6 + 11 = 17
+# 7 + 11 = 18
+# 7 + 14 = 21
+# 8 + 14 = 22
+# 8 + 11 = 19
+
+# Find 7
+# -2 + 14 = 12
+# -2 + 11 = 9
+# -2 + 10 = 8
+# -2 + 8 = 6
+# 0 + 8 = 8
+# 0 + 7 = 7
+
+
+# Find 23
+# -2 + 14 = 12
+# 0 + 14 = 14
+# 1 + 14 = 15
+# 3 + 14 = 17
+# 4 + 14 = 18
+# 4 + 14 = 18
+# 6 + 14 = 20
+# 7 + 14 = 21
+# 8 + 14 = 22
+# 10 + 14 = 24
+# 10 + 11 = 21
+# 11 + 11 = 22
+# 11 + 14 = 25
+# 11 + 11 = 22
+# 14 + 11 = 25
+
+
+def find_sum(L, V):
+    """
+    >>> L = PositionalList()
+    >>> start = [-2, 0, 1, 3, 4, 4, 6, 7, 8, 10, 11, 14]
+    >>> for element in start:
+    ...   _ = L.add_last(element)
+    >>> positions = find_sum(L, 19)
+    >>> positions[0].element() == 8
+    True
+    >>> positions[1].element() == 11
+    True
+    >>> positions2 = find_sum(L, 7)
+    >>> positions2[0].element()
+    0
+    >>> positions2[1].element()
+    7
+    >>> positions3 = find_sum(L, 23)
+    >>> positions3 is None
+    True
+    """
+    """
+    :param L: Positional list ordered in non-decreasing order
+    :param V: Sum you want to find
+    :return: A tuple of two positions that sum up to V.
+    """
+    first_number = L.first()
+    second_number = L.last()
+    while first_number.element() + second_number.element() != V or first_number is second_number:
+        summation = lambda: first_number.element() + second_number.element()
+
+        if first_number == L.last():
+            return None
+        if first_number == second_number:
+            second_number = L.after(second_number)
+
+        if summation < V:
+            while summation < V:
+                if second_number != L.last():
+                    second_number = L.after(second_number)
+                else:
+                    first_number = L.after(first_number)
+                summation = first_number.element() + second_number.element()
+        elif summation > V:
+            while True:
+                second_number = L.before(second_number)
+                summation = first_number.element() + second_number.element()
+                if summation < V:
+                    first_number = L.after(first_number)
+                    break
+                elif summation == V:
+                    break
+    return (first_number, second_number)
