@@ -750,23 +750,74 @@ class PositionalList(_DoublyLinkedBase, collections.Iterator):
     def swap(self, p, q):
         # 17, 8, 10, 5
         #import pdb; pdb.set_trace()
-        p_predecessor = self.before(p)._node if self.before(p) is not None else self._header
-        p_successor = self.after(p)._node if self.after(p) is not None else self._trailer
-        q_predecessor = self.before(q)._node if self.before(q) is not None else self._header
-        q_successor = self.after(q)._node if self.after(q) is not None else self._trailer
+        neighbouring_nodes = {
+            'p': {
+                'predecessor': None,
+                'successor': None,
+            },
+            'q': {
+                'predecessor': None,
+                'successor': None
+            }
+        }
+
+        for swap_nodes in (p, q):
+            neighbouring_node = neighbouring_nodes['p'] if swap_nodes == p else neighbouring_nodes['q']
+            try:
+                neighbouring_node['predecessor'] = self.before(swap_nodes)._node
+            except AttributeError:
+                neighbouring_node['predecessor'] = self._header
+
+            try:
+                neighbouring_node['successor'] = self.after(swap_nodes)._node
+            except AttributeError:
+                neighbouring_node['successor'] = self._trailer
+
+
+        # if p._node._next != q and p._node._prev != q and q._node._prev != p and q._node._next != p:
+        #     # Make sure nodes are not neighbours
+        #     p_predecessor = self.before(p)._node
+        #     p_successor = self.after(p)._node
+        #     q_predecessor = self.before(q)._node
+        #     q_successor = self.after(q)._node
+        # else:
+        #     # Swapping neighbouring nodes
+        #     p_predecessor = self.before(p)._node if self.before(p) != q else p._node
+        #     p_successor = self.after(p)._node if self.after(p) != q else p._node
+        #     q_predecessor = self.before(q)._node if self.before(q) != p else q._node
+        #     q_successor = self.after(q)._node if self.after(q) != p else q._node
+        #
+        # if p_predecessor is None:
+        #     p_predecessor = self._header
+        # if q_predecessor is None:
+        #     q_predecessor = self._header
+        # if p_successor is None:
+        #     p_successor = self._trailer
+        # if q_successor is None:
+        #     q_successor = self._trailer
 
         p_node = self._validate(p)  # 17
         q_node = self._validate(q)  # 5
 
-        p_predecessor._next = q_node
-        p_successor._prev = q_node
-        q_predecessor._next = p_node
-        q_successor._prev = p_node
+        neighbouring_nodes['p']['predecessor']._next = q_node
+        neighbouring_nodes['p']['successor']._prev = q_node
+        neighbouring_nodes['q']['predecessor']._next = p_node
+        neighbouring_nodes['q']['successor']._prev = p_node
 
-        p_node._prev = q_predecessor
-        p_node._next = q_successor
-        q_node._prev = p_predecessor
-        q_node._next = p_successor
+        p_node._prev = neighbouring_nodes['q']['predecessor']
+        p_node._next = neighbouring_nodes['q']['successor']
+        q_node._prev = neighbouring_nodes['p']['predecessor']
+        q_node._next = neighbouring_nodes['p']['successor']
+
+        # p_predecessor._next = q_node
+        # p_successor._prev = q_node
+        # q_predecessor._next = p_node
+        # q_successor._prev = p_node
+        #
+        # p_node._prev = q_predecessor
+        # p_node._next = q_successor
+        # q_node._prev = p_predecessor
+        # q_node._next = p_successor
 
 
 # C-7.34
@@ -855,7 +906,7 @@ pair of positions of such elements, if found, or None otherwise."""
 # 11 + 11 = 22
 # 11 + 14 = 25
 # 11 + 11 = 22
-# 14 + 11 = 25
+# 14 + 11 - None
 
 
 def find_sum(L, V):
@@ -893,20 +944,75 @@ def find_sum(L, V):
         if first_number == second_number:
             second_number = L.after(second_number)
 
-        if summation < V:
-            while summation < V:
+        if summation() < V:
+            while summation() < V:
                 if second_number != L.last():
                     second_number = L.after(second_number)
                 else:
                     first_number = L.after(first_number)
-                summation = first_number.element() + second_number.element()
-        elif summation > V:
+                #summation = first_number.element() + second_number.element()
+        elif summation() > V:
             while True:
                 second_number = L.before(second_number)
-                summation = first_number.element() + second_number.element()
-                if summation < V:
+                #summation = first_number.element() + second_number.element()
+                if summation() < V:
                     first_number = L.after(first_number)
                     break
-                elif summation == V:
+                elif summation() == V:
                     break
     return (first_number, second_number)
+
+
+# C-7.38
+"""There is a simple, but inefficient algorithm, called bubble-sort, for sorting a list L of n comparable elements.
+This algorithms scans the list n - 1 times, where, in each scan, the algorithm compares the current element with the
+next one and swaps them if they are out of order. Implement a bubble_sort function that takes a positional list L as a
+parameter. What is the running time of this parameter, assuming the positional list implemented with a doubly linked 
+list?"""
+
+
+# 5 2 8 9 3 8 4 7 3
+# 2 5 8 9 3 8 4 7 3
+# 2 5 8 3 8 4 7 3 9
+# 2 5 3 8 8 4 7 3 9
+# 2 5 3 8 4 7 3 8 9
+# 2 3 5 8 4 7 3 8 9
+# 2 3 5 4 7 3 8 8 9
+# 2 3 4 5 7 3 8 8 9
+# 2 3 4 5 3 7 8 8 9
+# 2 3 4 3 5 7 8 8 9
+# 2 3 3 4 5 7 8 8 9
+
+#
+# def bubble_sort(L: PositionalList):
+#     """
+#     >>> numbers = [5, 2, 8, 9, 3, 8, 4, 7, 3]
+#     >>> L = PositionalList()
+#     >>> for n in numbers:
+#     ...   _ = L.add_last(n)
+#     >>> bubble_sort(L)
+#     >>> for n in L:
+#     ...   print(n)
+#     2
+#     3
+#     3
+#     4
+#     5
+#     7
+#     8
+#     8
+#     9
+#     """
+#     if L.is_empty():
+#         return
+#     run_around = True
+#     while run_around:
+#         marker = L.first()
+#         run_around = False
+#         while marker != L.last():
+#             pivot = L.after(marker)
+#             if marker.element() > pivot.element():
+#                 L.swap(marker, pivot)
+#                 run_around = True
+#             else:
+#                 marker = pivot
