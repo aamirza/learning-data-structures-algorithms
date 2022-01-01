@@ -2,6 +2,7 @@
 """Give a complete implementation of the stack ADT using a singly linked list that includes a header sentinel."""
 import collections
 import html.parser
+import uuid
 
 
 class Empty(Exception):
@@ -214,9 +215,10 @@ first element and a reference to a list of remaining list elements."""
 
 class SinglyLinkedList:
     class _Node:
-        def __init__(self, e, next=None):
+        def __init__(self, e, next=None, list_id=None):
             self._element = e
             self._next = next
+            self._list_id = list_id
 
         def element(self):
             return self._element
@@ -228,6 +230,7 @@ class SinglyLinkedList:
         self._head = None
         self._tail = None
         self._size = 0
+        self._id = uuid.uuid4() 
 
     def __len__(self):
         return self._size
@@ -256,7 +259,7 @@ class SinglyLinkedList:
         return self._tail
 
     def add_first(self, e):
-        new_node = self._Node(e, next=self._head)
+        new_node = self._Node(e, next=self._head, list_id=self._id)
         self._head = new_node
         self._size += 1
         self._update_tail()
@@ -265,7 +268,7 @@ class SinglyLinkedList:
         if self.is_empty():
             self.add_first(e)
         else:
-            new_node = self._Node(e)
+            new_node = self._Node(e, list_id=self._id)
             self._tail._next = new_node
             self._tail = new_node
             self._size += 1
@@ -279,6 +282,35 @@ class SinglyLinkedList:
         self._size -= 1
         return value
 
+    def remove(self, node):
+        if self.node_in_list(node):
+            first_node = self.first()
+            if node == first_node:
+                return self.remove_first()
+
+            predecessor = first_node
+            while predecessor.next_node() != node:
+                predecessor = predecessor.next_node()
+            predecessor._next = node._next
+            self._size -= 1
+
+
+    
+    def node_in_list(self, node):
+        if node._list_id == self._id:
+            return True
+        return False
+
+    def add_after(self, node, e):
+        if isinstance(node, self._Node) and self.node_in_list(node):
+            new_node = self._Node(e, next=node.next_node(), list_id=self._id)
+            node._next = new_node
+            self._size += 1
+            self._update_tail()
+        else:
+            if not self.node_in_list(node):
+                raise AttributeError("Node not found in list")
+            raise TypeError("Can only add after Node type.")
 
 
 
@@ -618,6 +650,19 @@ class PositionalList(_DoublyLinkedBase, collections.Iterator):
     >>> next(pl) # last
     Traceback (most recent call last):
     StopIteration
+    >>> for node in pl:
+    ...   print(node)
+    5
+    8
+    10
+    17
+    >>> pl.swap(pl.first(), pl.after(pl.first()))
+    >>> for node in pl:
+    ...   print(node)
+    8
+    5
+    10
+    17
     """
 
     # -------------------------- nested Position class --------------------------
@@ -750,74 +795,56 @@ class PositionalList(_DoublyLinkedBase, collections.Iterator):
     def swap(self, p, q):
         # 17, 8, 10, 5
         #import pdb; pdb.set_trace()
-        neighbouring_nodes = {
+        nodes_to_swap = {
             'p': {
+                'actual_node': self._validate(p),
+                'replacement_node': self._validate(q),
                 'predecessor': None,
                 'successor': None,
             },
             'q': {
+                'actual_node': self._validate(q),
+                'replacement_node': self._validate(p),
                 'predecessor': None,
                 'successor': None
             }
         }
 
-        for swap_nodes in (p, q):
-            neighbouring_node = neighbouring_nodes['p'] if swap_nodes == p else neighbouring_nodes['q']
+        for node in (p, q):
+            node_of_concern = nodes_to_swap['p'] if node == p else nodes_to_swap['q']
             try:
-                neighbouring_node['predecessor'] = self.before(swap_nodes)._node
+                node_of_concern['predecessor'] = self.before(node)._node
             except AttributeError:
-                neighbouring_node['predecessor'] = self._header
+                node_of_concern['predecessor'] = self._header
 
             try:
-                neighbouring_node['successor'] = self.after(swap_nodes)._node
+                node_of_concern['successor'] = self.after(node)._node
             except AttributeError:
-                neighbouring_node['successor'] = self._trailer
+                node_of_concern['successor'] = self._trailer
 
 
-        # if p._node._next != q and p._node._prev != q and q._node._prev != p and q._node._next != p:
-        #     # Make sure nodes are not neighbours
-        #     p_predecessor = self.before(p)._node
-        #     p_successor = self.after(p)._node
-        #     q_predecessor = self.before(q)._node
-        #     q_successor = self.after(q)._node
-        # else:
-        #     # Swapping neighbouring nodes
-        #     p_predecessor = self.before(p)._node if self.before(p) != q else p._node
-        #     p_successor = self.after(p)._node if self.after(p) != q else p._node
-        #     q_predecessor = self.before(q)._node if self.before(q) != p else q._node
-        #     q_successor = self.after(q)._node if self.after(q) != p else q._node
-        #
-        # if p_predecessor is None:
-        #     p_predecessor = self._header
-        # if q_predecessor is None:
-        #     q_predecessor = self._header
-        # if p_successor is None:
-        #     p_successor = self._trailer
-        # if q_successor is None:
-        #     q_successor = self._trailer
+        nodes_to_swap['q']['replacement_node'] = self._validate(p)
+        nodes_to_swap['p']['replacement_node'] = self._validate(q)
 
-        p_node = self._validate(p)  # 17
-        q_node = self._validate(q)  # 5
 
-        neighbouring_nodes['p']['predecessor']._next = q_node
-        neighbouring_nodes['p']['successor']._prev = q_node
-        neighbouring_nodes['q']['predecessor']._next = p_node
-        neighbouring_nodes['q']['successor']._prev = p_node
+        for node in nodes_to_swap.keys():
+            node_of_concern = nodes_to_swap[node]
+            if node_of_concern['predecessor'] != node_of_concern['replacement_node']:
+               node_of_concern['predecessor']._next = node_of_concern['replacement_node']
+               node_of_concern['replacement_node']._prev = node_of_concern['predecessor']
+            else:
+               # The previous node is p or q
+               node_of_concern['predecessor']._next = node_of_concern['successor']
+               node_of_concern['replacement_node']._prev = node_of_concern['actual_node']
 
-        p_node._prev = neighbouring_nodes['q']['predecessor']
-        p_node._next = neighbouring_nodes['q']['successor']
-        q_node._prev = neighbouring_nodes['p']['predecessor']
-        q_node._next = neighbouring_nodes['p']['successor']
+            if nodes_to_swap[node]['successor'] != node_of_concern['replacement_node']:
+                node_of_concern['successor']._prev = node_of_concern['replacement_node']
+                node_of_concern['replacement_node']._next = node_of_concern['successor']
+            else:
+                node_of_concern['successor']._prev = node_of_concern['predecessor']
+                node_of_concern['replacement_node']._next = node_of_concern['actual_node']
 
-        # p_predecessor._next = q_node
-        # p_successor._prev = q_node
-        # q_predecessor._next = p_node
-        # q_successor._prev = p_node
-        #
-        # p_node._prev = q_predecessor
-        # p_node._next = q_successor
-        # q_node._prev = p_predecessor
-        # q_node._next = p_successor
+
 
 
 # C-7.34
@@ -983,36 +1010,280 @@ list?"""
 # 2 3 4 3 5 7 8 8 9
 # 2 3 3 4 5 7 8 8 9
 
-#
-# def bubble_sort(L: PositionalList):
-#     """
-#     >>> numbers = [5, 2, 8, 9, 3, 8, 4, 7, 3]
-#     >>> L = PositionalList()
-#     >>> for n in numbers:
-#     ...   _ = L.add_last(n)
-#     >>> bubble_sort(L)
-#     >>> for n in L:
-#     ...   print(n)
-#     2
-#     3
-#     3
-#     4
-#     5
-#     7
-#     8
-#     8
-#     9
-#     """
-#     if L.is_empty():
-#         return
-#     run_around = True
-#     while run_around:
-#         marker = L.first()
-#         run_around = False
-#         while marker != L.last():
-#             pivot = L.after(marker)
-#             if marker.element() > pivot.element():
-#                 L.swap(marker, pivot)
-#                 run_around = True
-#             else:
-#                 marker = pivot
+
+def bubble_sort(L: PositionalList):
+    """
+    >>> numbers = [5, 2, 8, 9, 3, 8, 4, 7, 3]
+    >>> L = PositionalList()
+    >>> for n in numbers:
+    ...   _ = L.add_last(n)
+    >>> bubble_sort(L)
+    >>> for n in L:
+    ...   print(n)
+    2
+    3
+    3
+    4
+    5
+    7
+    8
+    8
+    9
+    """
+    if L.is_empty():
+        return
+    run_around = True
+    while run_around:
+        marker = L.first()
+        run_around = False
+        while marker != L.last():
+            pivot = L.after(marker)
+            if marker.element() > pivot.element():
+                L.swap(marker, pivot)
+                run_around = True
+            else:
+                marker = pivot
+
+
+# C-7.39
+
+"""To better model a FIFO queue in which entries may be deleted before reaching the front, design a PositionalQueue
+class that supports the complete queue ADT, yet with enqueue returning a position instance and support for a new method,
+delete(p), that removes the element associated with position p from the queue. You may use the adapter design pattern,
+using a PositionalList as your storage"""
+
+
+class PositionalQueue:
+    """
+    >>> q = PositionalQueue()
+    >>> q.is_empty()
+    True
+    >>> first = q.enqueue(3)
+    >>> first.element()
+    3
+    >>> first == q.first()
+    True
+    >>> second = q.enqueue(5)
+    >>> second.element()
+    5
+    >>> first == q.first()
+    True
+    >>> q.is_empty()
+    False
+    >>> q.dequeue()
+    3
+    >>> second == q.first()
+    True
+    >>> len(q)
+    1
+    >>> _ = q.enqueue(12)
+    >>> len(q)
+    2
+    >>> _ = q.enqueue(8)
+    >>> q.delete(_)
+    8
+    >>> len(q)
+    2
+    >>> q.dequeue()
+    5
+    >>> q.dequeue()
+    12
+    """
+    def __init__(self):
+        self._queue = PositionalList()
+
+    def __len__(self):
+        return len(self._queue)
+
+    def is_empty(self):
+        return self._queue.is_empty()
+
+    def first(self):
+        return self._queue.first()
+
+    def enqueue(self, e):
+        return self._queue.add_last(e)
+
+    def dequeue(self):
+        return self._queue.delete(self._queue.first())
+
+    def delete(self, p):
+        return self._queue.delete(p)
+
+
+# C-7.40
+"""Describe an efficient method for maintaining a favourites list L, with move-to-front heuristic, such that elements 
+that have not been accessed in the most recent n accesses are automatically purged from the list."""
+
+# A simple way to do this would be to cap the size of this list at n.
+# In addition to that, an integer "last_access" attribute added to each element would show how many access counts ago that
+# element was last accessed, provided that a total access count is available on the List itself.
+# Starting from the tail, any element that was more than n access counts ago can simply be removed.
+
+
+# C-7.41
+"""Exercise C-5.29 introduces the notion of a natural join of two databases. Describe and analyze an efficient algorithm
+for computing the natural join of a linked list A of n pairs and a linked list B of m pairs."""
+
+# Computing the natural join would take a lot longer in this case due to lack of indexed search.
+# You would need to take each pair in list A, and then find the corresponding pair in list B.
+# This would take m + m-1 + m-2 ... m-n times.
+# nm - 1 - 2 - 3... O(nm) time.
+
+# In the worst case, all of the y in list A and B would be the same. In that case it would be nm + nm...
+# nm(nm), Or O(n^2m^2)
+
+# C-7.42
+"""Write a Scoreboard class that maintains the top 10 scores for a game application using a singly linked list, rather
+than the array that was used in Section 5.5.1."""
+
+# It will need to be lowest to highest, because you can't move backwards.
+
+class Scoreboard:
+    """
+    >>> scoreboard = Scoreboard(max_players=10)
+    >>> scoreboard.is_empty()
+    True
+    >>> scoreboard.add_player(25)
+    >>> scoreboard.add_player(50)
+    >>> scoreboard.print_all_scores()
+    #2 – 25 points
+    #1 – 50 points
+    >>> scoreboard.add_player(10)
+    >>> scoreboard.add_player(42)
+    >>> scoreboard.add_player(84)
+    >>> scoreboard.add_player(50)
+    >>> scoreboard.add_player(22)
+    >>> scoreboard.add_player(19)
+    >>> scoreboard.add_player(43)
+    >>> scoreboard.add_player(50)
+    >>> scoreboard.print_all_scores()
+    #10 – 10 points
+    #9 – 19 points
+    #8 – 22 points
+    #7 – 25 points
+    #6 – 42 points
+    #5 – 43 points
+    #4 – 50 points
+    #3 – 50 points
+    #2 – 50 points
+    #1 – 84 points
+    >>> scoreboard.add_player(7)
+    >>> scoreboard.print_all_scores()
+    #10 – 10 points
+    #9 – 19 points
+    #8 – 22 points
+    #7 – 25 points
+    #6 – 42 points
+    #5 – 43 points
+    #4 – 50 points
+    #3 – 50 points
+    #2 – 50 points
+    #1 – 84 points
+    >>> scoreboard.add_player(15)
+    >>> scoreboard.print_all_scores()
+    #10 – 15 points
+    #9 – 19 points
+    #8 – 22 points
+    #7 – 25 points
+    #6 – 42 points
+    #5 – 43 points
+    #4 – 50 points
+    #3 – 50 points
+    #2 – 50 points
+    #1 – 84 points
+    >>> scoreboard.add_player(28)
+    >>> scoreboard.print_all_scores()
+    #10 – 19 points
+    #9 – 22 points
+    #8 – 25 points
+    #7 – 28 points
+    #6 – 42 points
+    #5 – 43 points
+    #4 – 50 points
+    #3 – 50 points
+    #2 – 50 points
+    #1 – 84 points
+    """
+    class _Player:
+        def __init__(self, score=0):
+            self._score = score
+
+        def update_score(self, new_score):
+            self._score = new_score
+            
+        def get_score(self):
+            return self._score
+
+    def __init__(self, max_players=10):
+        self._score_board = SinglyLinkedList()
+        self._max_size = max_players
+
+    def __len__(self):
+        return len(self._score_board)
+
+    def __iter__(self):
+        for player in self._score_board:
+            yield player.element()
+
+    def is_empty(self):
+        return len(self) == 0
+
+    def add_player(self, score):
+        player = self._Player(score)
+        if score > self.highest_score():
+            self._score_board.add_last(player)
+        elif score > self.lowest_score():
+            higher_player = self._score_board.first()
+            while higher_player.element().get_score() < player.get_score():
+                lower_player = higher_player
+                higher_player = higher_player.next_node()
+            self._score_board.add_after(lower_player, player)
+        elif len(self) < 10:
+            self._score_board.add_first(player)
+        else:
+            return None
+
+        while len(self) > 10:
+            self._score_board.remove_first()
+
+    def update_player(self, player, score):
+        # Easier to remove player and add back in, since you need to scan the entire list to update score anyway.
+        if self._score_board.node_in_list(player):
+            self._score_board.remove(player)
+            self.add_player(score)
+
+
+    def lowest_score(self):
+        if not self.is_empty():
+            return self._score_board.first().element().get_score()
+        return 0
+
+    def highest_score(self):
+        if not self.is_empty():
+            return self._score_board.last().element().get_score()
+        return 0
+
+    def get_num_players(self):
+        return len(self)
+
+    def print_all_scores(self):
+        rank = len(self)
+        for player in self:
+            print(f"#{rank} – {player.get_score()} points")
+            rank -= 1
+
+
+# C-7.43
+"""Describe a method for performing a card shuffle of a list of 2n elements, by converting it into two lists. A card
+shuffle is a permutation where a list L is cut into two lists, L1 and L2, where L1 is the first half of L and L2 is the
+second half of L, and then these two lists are merged into one by taking the first element in L1, then the first element
+in L2, followed by the second element in L1, the second element in L2 and so on."""
+
+# You can start from the front of a doubly linked list for L1, and the back of a doubly linked list for L2.
+# Move an element from the back of list to after each element starting from the front.
+# So L(first), L(last), L(second), L(second_last), and so on, until you get to the middle of the list.
+# This would take O(n) time.
+
+# Alternatively, if you want to use a regular array, you can calculate the midpoint index of the array, then create
+# a new list appending L[0] + L[mid] + L[1] + L[mid+1] to the list and so on. This would also take O(n) time.
