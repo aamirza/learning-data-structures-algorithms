@@ -23,6 +23,8 @@ h. What is the height of the tree?
 
 
 # R-8.2
+from ch8.binary_tree import BinaryTree
+
 """
 Show a tree achieving the worst-case running time for algorithm depth.
 """
@@ -69,3 +71,52 @@ Proposition 8.4: The height of a nonempty tree T is equal to the maximum of the 
 # Until you reach the root, whose height would be N.
 
 # Thus, the root's height was equal to the maximum of the depth of its leaf position. This completes the induction step.
+
+
+#R-8.4
+"""
+What is the running time of a call to T.height2(p) when called on a position p distinct from the root of T?
+"""
+
+# The running time of the algorithm is O(n + number of children + 1). A height other than the root would have fewer
+# children, so it would run a constant factor quicker, or O(n') where n' is the number of nodes at the subtree rooted at
+# p
+
+# R-8.5
+"""
+Describe an algorithm, relying only on the BinaryTree operations, that counts the number of leaves in a binary tree
+that are the left child of their respective parent.
+"""
+
+# An inorder traversal works best
+
+def count_left_children(T):
+    count = 0
+    for p in T.positions():
+        if T.is_leaf(p) and p == T.left(T.parent(p)):
+            count += 1
+    return count
+
+
+# R-8.6
+"""
+Let T be an n-node binary tree that may be improper. Describe how to represent T by means of a proper binary tree T' 
+with O(n) nodes.
+"""
+
+# O(n) nodes means we can indeed add some nodes to fill the gap. Add empty nodes whenever a node has only child.
+# The worst case-scenario is doubling the number of nodes minus 1 (no need to add a node to the leaves), or O(2n - 1)
+# In other words, O(n).
+
+# R-8.7
+"""
+What are the minimum and maximum number of internal and external nodes in an improper binary tree with n nodes?
+"""
+
+# For internal nodes: h <= ni < 2^h - 1
+# The MINIMUM would be a binary tree consisting of just the root. In this case, the height is 0 and there are no internal nodes.
+# The MAXIMUM would be at least 2^h - 1.
+
+# For external nodes: 1 <= 2^h
+# The MINIMUM would be 1, in the case of a tree consisting of just the root, or an improper tree with just one leaf.
+# The MAXIMUM would be 2^h - 1, not 2^h, because at least one leaf will be missing in an improper binary tree.
