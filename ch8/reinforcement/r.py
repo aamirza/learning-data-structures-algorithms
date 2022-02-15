@@ -120,3 +120,359 @@ What are the minimum and maximum number of internal and external nodes in an imp
 # For external nodes: 1 <= 2^h
 # The MINIMUM would be 1, in the case of a tree consisting of just the root, or an improper tree with just one leaf.
 # The MAXIMUM would be 2^h - 1, not 2^h, because at least one leaf will be missing in an improper binary tree.
+
+
+# R-8.8
+"""
+Answer the following questions so as to justify Proposition 8.8.
+
+a. What is the minimum number of external nodes for a proper binary tree with height h? Justify your answer.
+b. What is the maximum number of external nodes for a proper binary tree with height h? Justify your answer.
+c. Let T be a proper binary tree with heigh h and n nodes. Show that
+
+log(n + 1) - 1 <= h <= (n - 1)/2
+
+d. For which values of n and h can the above lower and upper bounds on h be attained with equality?
+"""
+
+"""
+a: The minimum number of external nodes in a proper binary tree is h + 1, where h is the height.
+ 
+Proof by induction.
+ 
+  BASE CASE
+ 
+     A proper binary tree consisting of just the root. In this case, the height is 0 and the number of external nodes is
+     one. 
+     
+     n_e = h + 1 = 0 + 1 = 1
+ 
+ INDUCTION STEP
+ 
+    By definition of a proper binary tree, each node must have either 0 or 2 children. In the case of where there are 
+    n_e external nodes at height h, adding another level of depth (h + 1) would mean you need, at minimum, two new nodes.
+    
+    If h = n_e,
+    then h + 1 <= n_e + 2
+    n_e' = n_e + 2
+    h + 1 < n_e'
+    
+    
+    This completes the induction step.
+"""
+
+"""
+b: The maximum number of external nodes in a proper binary tree is 2^h, where h is the height.
+
+Proof by induction.
+
+    BASE CASE
+    
+        A proper binary tree consisting of just the root. In this case, the height is 0 and the number of external nodes
+        is one.
+    
+        n_e <= 2^h = 2^0 = 1
+        1 <= 1
+    
+        This proves the base case.
+    
+    INDUCTION STEP
+        
+        For a proper binary tree with height h, the number of external nodes should 2^h. For h + 1, it would be 2^(h+1).
+        
+        For a height of h + 1, it would be 2^h * 2, because each node would have two children each. 
+        Or in other words, 2^(h+1). 
+        
+        This completes the induction step.
+    
+"""
+
+"""
+c. Let T be a proper binary tree with heigh h and n nodes. Show that log(n + 1) - 1 <= h <= (n - 1)/2
+
+Knowing that 2h + 1 <= n <= 2^(h+1) - 1
+We arrive at h <= (n - 1)/2 and log(n + 1) - 1 <= h
+Hence log(n + 1) - 1 <= h <= (n - 1)/2
+"""
+
+"""
+d. For which values of n and h can the above lower and upper bounds on h be attained with equality?
+
+For h = 0, or the case of the root being the only node.
+"""
+
+
+# R.8-9
+"""Give a proof by induction of Proposition 8.9
+
+Proposition 8.9: In a nonempty proper binary tree T, with n_e external nodes and n_i internal nodes, we have n_e = ni + 1
+"""
+
+# Proof by induction
+# Base case:
+    # Just the root.
+    # The number of external nodes is 1, number of internal nodes is 0.
+    # n_e = n_i + 1
+
+# Induction step:
+    # Say n_e = n_i + 1 for a certain height h.
+    # Increase h by 1. For an external node, you must attach two new external nodes to it. The external node with the
+    # new nodes attached becomes an internal node. Essentially, the number of external nodes increased by 2, but the
+    # number of external nodes falls by one as it gets converted into an internal node (+1)
+    # +2 n_e, -1 n_e, +1 n_i
+    # n_e + 2 - 1 = (n_i + 1) + 1
+    # n_e + 1 = n_i + 2
+    # n_e = n_i + 1
+    # This completes the induction step.
+
+
+# R-8.10
+"""
+Give a direct implementation of the num_children method within the class BinaryTree.
+"""
+
+
+class Tree:
+    """Abstract base class representing a tree structure."""
+
+    # ------------------------------- nested Position class -------------------------------
+    class Position:
+        """An abstraction representing the location of a single element within a tree.
+
+        Note that two position instaces may represent the same inherent location in a tree.
+        Therefore, users should always rely on syntax 'p == q' rather than 'p is q' when testing
+        equivalence of positions.
+        """
+
+        def element(self):
+            """Return the element stored at this Position."""
+            raise NotImplementedError('must be implemented by subclass')
+
+        def __eq__(self, other):
+            """Return True if other Position represents the same location."""
+            raise NotImplementedError('must be implemented by subclass')
+
+        def __ne__(self, other):
+            """Return True if other does not represent the same location."""
+            return not (self == other)  # opposite of __eq__
+
+    # ---------- abstract methods that concrete subclass must support ----------
+    def root(self):
+        """Return Position representing the tree's root (or None if empty)."""
+        raise NotImplementedError('must be implemented by subclass')
+
+    def parent(self, p):
+        """Return Position representing p's parent (or None if p is root)."""
+        raise NotImplementedError('must be implemented by subclass')
+
+    def num_children(self, p):
+        """Return the number of children that Position p has."""
+        raise NotImplementedError('must be implemented by subclass')
+
+    def children(self, p):
+        """Generate an iteration of Positions representing p's children."""
+        raise NotImplementedError('must be implemented by subclass')
+
+    def __len__(self):
+        """Return the total number of elements in the tree."""
+        raise NotImplementedError('must be implemented by subclass')
+
+    # ---------- concrete methods implemented in this class ----------
+    def is_root(self, p):
+        """Return True if Position p represents the root of the tree."""
+        return self.root() == p
+
+    def is_leaf(self, p):
+        """Return True if Position p does not have any children."""
+        return self.num_children(p) == 0
+
+    def is_empty(self):
+        """Return True if the tree is empty."""
+        return len(self) == 0
+
+    def depth(self, p):
+        """Return the number of levels separating Position p from the root."""
+        if self.is_root(p):
+            return 0
+        else:
+            return 1 + self.depth(self.parent(p))
+
+    def _height1(self):  # works, but O(n^2) worst-case time
+        """Return the height of the tree."""
+        return max(self.depth(p) for p in self.positions() if self.is_leaf(p))
+
+    def _height2(self, p):  # time is linear in size of subtree
+        """Return the height of the subtree rooted at Position p."""
+        if self.is_leaf(p):
+            return 0
+        else:
+            return 1 + max(self._height2(c) for c in self.children(p))
+
+    def height(self, p=None):
+        """Return the height of the subtree rooted at Position p.
+
+        If p is None, return the height of the entire tree.
+        """
+        if p is None:
+            p = self.root()
+        return self._height2(p)  # start _height2 recursion
+
+    def __iter__(self):
+        """Generate an iteration of the tree's elements."""
+        for p in self.positions():  # use same order as positions()
+            yield p.element()  # but yield each element
+
+    def positions(self):
+        """Generate an iteration of the tree's positions."""
+        return self.preorder()  # return entire preorder iteration
+
+    def preorder(self):
+        """Generate a preorder iteration of positions in the tree."""
+        if not self.is_empty():
+            for p in self._subtree_preorder(self.root()):  # start recursion
+                yield p
+
+    def _subtree_preorder(self, p):
+        """Generate a preorder iteration of positions in subtree rooted at p."""
+        yield p  # visit p before its subtrees
+        for c in self.children(p):  # for each child c
+            for other in self._subtree_preorder(c):  # do preorder of c's subtree
+                yield other  # yielding each to our caller
+
+    def postorder(self):
+        """Generate a postorder iteration of positions in the tree."""
+        if not self.is_empty():
+            for p in self._subtree_postorder(self.root()):  # start recursion
+                yield p
+
+    def _subtree_postorder(self, p):
+        """Generate a postorder iteration of positions in subtree rooted at p."""
+        for c in self.children(p):  # for each child c
+            for other in self._subtree_postorder(c):  # do postorder of c's subtree
+                yield other  # yielding each to our caller
+        yield p  # visit p after its subtrees
+
+    def breadthfirst(self):
+        """Generate a breadth-first iteration of the positions of the tree."""
+        if not self.is_empty():
+            fringe = LinkedQueue()  # known positions not yet yielded
+            fringe.enqueue(self.root())  # starting with the root
+            while not fringe.is_empty():
+                p = fringe.dequeue()  # remove from front of the queue
+                yield p  # report this position
+                for c in self.children(p):
+                    fringe.enqueue(c)  # add children to back of queue
+
+
+class BinaryTree(Tree):
+  """Abstract base class representing a binary tree structure."""
+
+  # --------------------- additional abstract methods ---------------------
+  def left(self, p):
+    """Return a Position representing p's left child.
+
+    Return None if p does not have a left child.
+    """
+    raise NotImplementedError('must be implemented by subclass')
+
+  def right(self, p):
+    """Return a Position representing p's right child.
+
+    Return None if p does not have a right child.
+    """
+    raise NotImplementedError('must be implemented by subclass')
+
+  # ---------- concrete methods implemented in this class ----------
+  def sibling(self, p):
+    """Return a Position representing p's sibling (or None if no sibling)."""
+    parent = self.parent(p)
+    if parent is None:                    # p must be the root
+      return None                         # root has no sibling
+    else:
+      if p == self.left(parent):
+        return self.right(parent)         # possibly None
+      else:
+        return self.left(parent)          # possibly None
+
+  def children(self, p):
+    """Generate an iteration of Positions representing p's children."""
+    if self.left(p) is not None:
+      yield self.left(p)
+    if self.right(p) is not None:
+      yield self.right(p)
+
+  def inorder(self):
+    """Generate an inorder iteration of positions in the tree."""
+    if not self.is_empty():
+      for p in self._subtree_inorder(self.root()):
+        yield p
+
+  def _subtree_inorder(self, p):
+    """Generate an inorder iteration of positions in subtree rooted at p."""
+    if self.left(p) is not None:          # if left child exists, traverse its subtree
+      for other in self._subtree_inorder(self.left(p)):
+        yield other
+    yield p                               # visit p between its subtrees
+    if self.right(p) is not None:         # if right child exists, traverse its subtree
+      for other in self._subtree_inorder(self.right(p)):
+        yield other
+
+  # override inherited version to make inorder the default
+  def positions(self):
+    """Generate an iteration of the tree's positions."""
+    return self.inorder()                 # make inorder the default
+
+  def num_children(self, p):
+      num_children = 0
+      for child in self.children(p):
+          num_children += 1
+      return num_children
+
+  # Implemented above!
+
+
+# R-8.11
+"""Find the value of arithmetic expression associated with each subtree of hte binary tree of Figure 8.8"""
+
+
+# 3 + 1                     # = 4
+# (3 + 1) * 3               # = 12
+# 9 - 5                     # = 4
+# (9 - 5) + 2               # = 6
+# ((3 + 1) * 3) / ((9 -5) + 2)      # = 12 / 6 = 2
+# 7 - 4                     # = 3
+# 3 * (7 - 4)               # = 9
+# ((3 * (7 - 4)) + 6        # = 15
+# (((3 + 1) * 3) / ((9 -5) + 2)) - (((3 * (7 - 4)) + 6))        = 2 - 15 = -13
+
+
+# R-8.12
+"""Draw an arithmetic expression tree that has four external nodes, storing the numbers 1, 5, 6 and 7 (with each number
+stored in a distinct external node, but not necessarily in this order), and has three internal nodes, each storing an
+operator {+, -, x, /}, so that hte value of the root is 21. The operators may return and act on fractions, and an 
+operator may be used more than once."""
+
+# 6 / (1 = 5/7)
+
+"""
+    /
+6       -
+    1       /   
+        5       7
+"""
+
+
+# R-8.13
+
+"""Draw a binary tree representation of the following arithmeti expression: 
+
+(((5 + 2) * (2 - 1)) / ((2 + 9) + ((7 -2) - 1)) * 8)"""
+
+"""
+                                                *
+                            /                                       8
+            *                                   +
+    +               -                   +                   -
+5       2       2       1           2       9           -       1
+                                                    7       2
+"""
