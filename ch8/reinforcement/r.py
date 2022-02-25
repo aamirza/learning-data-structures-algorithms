@@ -476,3 +476,31 @@ operator may be used more than once."""
 5       2       2       1           2       9           -       1
                                                     7       2
 """
+
+
+# R-8.14
+"""Justify Table 8.2, summarizing the running time of the methods of a tree represented with a linked structure, 
+by providing, for each method, a description of its implementation, and an analysis of its running time."""
+
+
+# len, is_empty is O(1)
+    # Justification: Since this is stored as a property of the tree itself, it has an O(1) retrieval time.
+
+# root, parent, is_root, is_leaf are O(1)
+    # Justification: For root, you need only check if the element's parent property is set to None.
+    # Justification: For parent, the parent is stored as a property of the position.
+    # Justification: For is_leaf, the children are stored as a property of the position.
+
+# children(p) is O(cp + 1) where c is the number of children.
+    # Justification: With all the children of a node stored in a collection, iterating over that collection is O(n).
+
+# depth(p): O(dp + 1) where d is the number of ancestors.
+    # Justification: Justified in the book.
+
+# height(p): O(n)
+    # Justification: You need to iterate over all the elements in the tree to find the maximum depth. The height is
+    # equal to the maximum depth.
+
+# add_root, add_left, add_right, replace, delete, attach are O(1)
+    # Justification: Since you are only working on one node, and at most 2-3 of its neighbours with a constant number
+    # of actions, the run time is O(1)
