@@ -24,6 +24,8 @@ h. What is the height of the tree?
 
 # R-8.2
 from ch8.binary_tree import BinaryTree
+from ch8.euler_tour import BinaryEulerTour
+from ch8.linked_binary_tree import LinkedBinaryTree
 
 """
 Show a tree achieving the worst-case running time for algorithm depth.
@@ -504,3 +506,132 @@ by providing, for each method, a description of its implementation, and an analy
 # add_root, add_left, add_right, replace, delete, attach are O(1)
     # Justification: Since you are only working on one node, and at most 2-3 of its neighbours with a constant number
     # of actions, the run time is O(1)
+
+
+# R-8.15
+"""The LinkedBinaryTree class provides only nonpublic versions of the update methods discussed on page 319. Implement a
+simple subclass named MutableLinkedBinaryTree that provides public wrapper functions for each of the inherited nonpublic
+update methods."""
+
+class MutableLinkedBinaryTree(LinkedBinaryTree):
+    """
+    >>> bt = MutableLinkedBinaryTree()
+    >>> bt.add_root(5)
+    >>> bt.root().element() == 5
+    True
+    """
+    def add_root(self, e):
+        return self._add_root(e)
+
+    def add_left(self, p, e):
+        return self._add_left(p, e)
+
+    def add_right(self, p, e):
+        return self._add_right(p, e)
+
+    def replace(self, p, e):
+        return self._replace(p, e)
+
+    def delete(self, p):
+        return self._delete(p)
+
+    def attach(self, p, t1, t2):
+        self._attach(p, t1, t2)
+
+
+# R-8.16
+"""
+Let T be a binary tree with n nodes, and let f() be the level numbering funcion of the positions of T, as given in 
+Section 8.3.2, of each position in a binary tree T.
+
+a) Show that for every position p of T, f(p) <= 2^n - 2
+b) Show an example of a binary tree with seven nodes that attains the above upper bound on f(p) for some position p.
+"""
+
+# a) Show that for every position p of T, f(p) <= 2^n - 2
+
+"""
+PROOF BY INDUCTION
+
+BASE CASE 
+    
+    n = 1, or just the root. This has, according to Section 8.3.2, f(p) = 0.
+    f(p) = 0 <= 2^n - 2 = 2^(1) - 2 = 0
+    0 <= 0
+    
+    This proves the base case.
+    
+INDUCTION STEP
+
+    There would be one extra node if a left child was added.
+    The left child of f(p) has a level number of 2f(p) + 1. 
+    
+    2f(p) + 1 <= 2^(n+1) - 2
+    2f(p) + 1 <= 2*(2^n) - 2
+    2(2^n - 2) + 1 <= 2*(2^n) - 2  because f(p) <= 2^n - 2
+    2*2^n - 4 + 1 <= 2*(2^n) - 2
+    2*2^n - 3 <= 2*2^n - 2
+    
+    This completes the induction step for left children
+    
+    For right children, assuming no left child is added...
+    The right child of f(p) has a level number of 2f(p) + 2
+    
+    2f(p) + 2 <= 2^(n+1) - 2
+    2f(p) + 2 <= 2*2^n - 2
+    2(2^n - 2) + 2 <= 2*2^n - 2
+    2*2^n - 2 <= 2*2^n - 2
+    
+    This completes the induction step for right children.
+"""
+
+# b) Show an example of a binary tree with seven nodes that attains the above upper bound of f(p) for position p.
+
+"""
+    0
+        2
+            6
+                14
+                    30
+                        62
+                            126
+
+This binary tree has a maximum level number of 126. With 7 nodes, it's upper bound would be
+
+
+126 <= 2^n - 2
+126 <= 2^7 - 2
+126 <= 128 - 2
+126 <= 126  
+"""
+
+
+# R-8.17
+
+"""Show how to use the Euler tour traversal to compute the level number f(p), as defined in Section 8.3.2, of each
+position in a binary tree T."""
+
+class LevelNumberTour(BinaryEulerTour):
+    class TourNotCompleteError(Exception):
+        pass
+
+    def __init__(self, tree):
+        super().__init__(tree)
+        self._count = 0
+
+    def level_number(self, p):
+        if len(self.tree()) != self._count:
+            raise self.TourNotCompleteError('You need to conduct an tour of your tree before you can retrieve a '
+                                            'level number.')
+        return p.element()._level_number
+
+    def _hook_previsit(self, p, d, path):
+        maximum_number = 2*(d+1) - 2
+        path_length = len(path) - 1
+        level_number = maximum_number
+        for index in path:
+            if index == 0:  # left child
+                level_number -= 2**path_length
+            path_length -= 1
+        p.element().set_level_number(level_number)
+        self._count += 1
