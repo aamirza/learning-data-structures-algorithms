@@ -635,3 +635,111 @@ class LevelNumberTour(BinaryEulerTour):
             path_length -= 1
         p.element().set_level_number(level_number)
         self._count += 1
+
+
+# R-8.18
+"""Let T be a binary tree with n positions that is realized with an array representation A, and let f() be the level
+numbering function of the positions of T, as given in Section 8.3.2. Give pseudocode descriptions of each methods
+root, parent, left, right, is_leaf, and is_root."""
+
+class ArrayBinaryTree:
+    # init:
+        # tree = []
+
+    # root
+        # get tree[0] // f(0)
+
+    # left(p)
+        # return f((p * 2) + 1)
+
+    # right(p)
+        # return f((p * 2) + 2)
+
+    # parent(p)
+        # return f(int((p - 1) / 2))
+
+    # is_leaf(p)
+        # return len(tree) > left(p)
+
+    # is_root(f)
+        # return f(0) == f(p)
+    pass
+
+# R-8.19
+"""
+Our definition of the level number function f(p) as given in Section 8.3.2 began with the root having number 0. Some
+authors prefer to use a level number g(p) in which the root is assigned number 1, because it simplifies the arithmetic 
+for finding neighbouring positions. Redo Exercise R-8.18, but assuming we use a level number g(p) in which the root is
+assigned number 1.
+"""
+
+# If root is 1, that means its left child is 2 and right child 3.
+# The left child of (2) would have to be 4, and right child would have to be 5.
+# The left child of (3) would then be 6, and right child would be 7.
+# The left child is 2g(p) and right child 2g(p) + 1
+# The parent is floor(g(p) / 2)
+
+
+    # root
+        # return g(1)
+
+    # left(p)
+        # return g(p * 2)
+
+    # right(p)
+        # return g((p * 2) + 1)
+
+    # parent(p)
+        # return g(int(p / 2))
+
+    # is_leaf(p)
+        # return len(tree) + 1 > left(p)
+
+    # is_root(p)
+        # return g(1) === g(p)
+
+
+# R-8.20
+"""
+Draw a binary tree T that simultaneously satisfies the following:
+    * Each internal node of T stores a single character.
+    * A preorder traversal of T yields EXAMFUN
+    * An inorder traversal of T yields MAFXUEN
+"""
+
+# yield p
+# for children in p:
+#   inorder(children)
+
+
+# if left_child:
+#   inorder(left_child)
+# yield p
+# if right_child:
+#   inorder(right_child)
+
+"""
+                E
+            X       N
+        A       U
+    M       F
+    
+Preorder:   E -> X, N
+            X -< A. U
+            A -> M, F
+            M
+            F
+            U
+            N
+            
+Inorder:    ...E, X, A, M
+            M
+            A
+            ...F
+            F
+            X
+            ...U
+            U
+            E
+            B
+"""
