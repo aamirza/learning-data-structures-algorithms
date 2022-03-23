@@ -743,3 +743,73 @@ Inorder:    ...E, X, A, M
             E
             B
 """
+
+
+# R-8.21
+"""
+In what order are positions visited during a preorder traversal of the tree of Figure 8.8?
+"""
+
+# 1st: -
+# 2nd: /
+# 3rd: X
+# 4th: +
+# 5th: 3
+# 6th: 1
+# 7th: 3
+# 8th: +
+# 9th: -
+# 10th: 9
+# 11th: 5
+# 12th: 2
+# 13th: +
+# 14th: *
+# 15th: 3
+# 16th: -
+# 17th: 7
+# 18th: 4
+# 19th: 6
+
+
+# R-8.22
+"""
+In what order are positions visited during a postorder traversal of the tree of Figure 8.8?
+"""
+
+# 1st: 3
+# 2nd: 1
+# 3rd: +
+# 4th: 3
+# 5th: *
+# 6th: 9
+# 7th: 5
+# 8th: -
+# 9th: 2
+# 10th: +
+# 11th: /
+# 12th: 3
+# 13th: 7
+# 14th: 4
+# 15th: -
+# 16th: *
+# 17th: 6
+# 18th: +
+# 19th: -
+
+
+# R-8.23
+"""
+Let T be an ordered tree with more than one node. Is it possible that the preorder traversal of T visits the nodes in 
+the same order as the postorder traversal of T? If so, give an example; otherwise, explain why this cannot occur. Likewise,
+is it possible that the preorder traversal of T visits the nodes in the reverse order of the postorder traversal of T? 
+If so, give an example; otherwise explain why this cannot occur.
+"""
+
+"""If it has more than one node, they can never be the same for the simple reason that in a preorder traversal the root
+is visited first, whereas in a postorder traversal, the root is visited last.
+
+If we reverse the order of a postorder traversal, it is indeed possible that they may be equal. The example where we
+have an ordered tree with just the root and one child. In a preorder traversal, the root is visited first, and then the
+child. In a postorder traversal, the child is visited first, then the root. Reversing the postorder traversal would
+result in the root being visited first, and then the child. This is identical to the preorder traversal.
+"""
