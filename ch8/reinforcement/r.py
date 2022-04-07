@@ -23,6 +23,8 @@ h. What is the height of the tree?
 
 
 # R-8.2
+import collections
+
 from ch8.binary_tree import BinaryTree
 from ch8.euler_tour import BinaryEulerTour
 from ch8.linked_binary_tree import LinkedBinaryTree
@@ -805,11 +807,79 @@ is it possible that the preorder traversal of T visits the nodes in the reverse 
 If so, give an example; otherwise explain why this cannot occur.
 """
 
-"""If it has more than one node, they can never be the same for the simple reason that in a preorder traversal the root
+"""
+If it has more than one node, they can never be the same for the simple reason that in a preorder traversal the root
 is visited first, whereas in a postorder traversal, the root is visited last.
 
 If we reverse the order of a postorder traversal, it is indeed possible that they may be equal. The example where we
 have an ordered tree with just the root and one child. In a preorder traversal, the root is visited first, and then the
 child. In a postorder traversal, the child is visited first, then the root. Reversing the postorder traversal would
 result in the root being visited first, and then the child. This is identical to the preorder traversal.
+"""
+
+
+# R-8.24
+"""
+Answer the previous question for the case when T is a proper binary tree with more than one node.
+"""
+
+"""
+In this case, they can never be the same. In a regular preorder and postorder traversal, they can't be the same for the
+simple reason that a preorder traversal starts with the root while a postorder traversal ends at the root.
+
+Reversing a postorder traversal does not make it equal either, since the children will be traversed from right to left
+instead of left to right, and in a proper binary tree with more than one node, the root must have two children to meet
+the definition of proper, so the "root with one child" structure does not apply here.
+"""
+
+# R-8.25
+"""
+Consider the example of a breadth-first traversal given in Figure 8.17. Using the annotated numbers from that figure,
+describe the contents of the queue before each pass of the while loop in Code Fragment 8.14. To get started, the queue
+has contents {1} before the first pass, and contents {2, 3, 4} before the second pass.
+"""
+
+
+"""
+                Before                      After
+Pass 1          {1}                         {2, 3, 4}
+Pass 2          {2, 3, 4}                   {3, 4, 5, 6}
+Pass 3          {3, 4, 5, 6}                {4, 5, 6, 7, 8, 9, 10, 11}
+Pass 4          {4, 5, 6, 7, 8, 9, 10, 11}  {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+Pass 5          {...}                       {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+Pass 6          {...}                       {7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
+Pass 7          {...}                       {8, 9, 10, 11, 12, 13, 14, 15, 16}
+Pass 8          {...}                       {9, 10, 11, 12, 13, 14, 15, 16}
+Pass 9          {...}                       {10, 11, 12, 13, 14, 15, 16}
+Pass 10         {...}                       {11, 12, 13, 14, 15, 16}
+Pass 11         {...}                       {12, 13, 14, 15, 16}
+Pass 12         {...}                       {13, 14, 15, 16}
+Pass 13         {...}                       {14, 15, 16}
+Pass 14         {14, 15, 16}                {15, 16}
+Pass 15         {15, 16}                    {16}
+Pass 16         {16}                        {}
+"""
+
+
+# R-8.26
+"""The collections.deque class supports an extend method that adds a collection of elements to the end of the queue
+all at once. Reimplement the breadthfirst method of the Tree class to take advantage of this feature."""
+
+def breadth_first_traversal_with_deque(tree: Tree, function):
+    q = collections.deque()
+    visit = []
+    q.append(tree.root())
+    while len(q) != 0:
+        p = q.popleft()
+        visit.append(p)
+        if not tree.is_leaf(p):
+            q.extend(tree.children(p))
+    return visit
+
+# R-8.27
+"""Give the output of the function parenthesize(T, T.root()), as described in Code Fragment 8.25, when T is the tree of
+Figure 8.8."""
+
+"""
+- (/ (X (+ (3, 1), 3), + (- (9, 5), 2)), + (X (3, - (7, 4)), 6))
 """
