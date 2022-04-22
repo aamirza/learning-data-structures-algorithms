@@ -26,7 +26,8 @@ h. What is the height of the tree?
 import collections
 
 from ch8.binary_tree import BinaryTree
-from ch8.euler_tour import BinaryEulerTour
+from ch8.euler_tour import BinaryEulerTour, EulerTour
+from ch8.expression_tree import ExpressionTree
 from ch8.linked_binary_tree import LinkedBinaryTree
 
 """
@@ -840,25 +841,7 @@ has contents {1} before the first pass, and contents {2, 3, 4} before the second
 """
 
 
-"""
-                Before                      After
-Pass 1          {1}                         {2, 3, 4}
-Pass 2          {2, 3, 4}                   {3, 4, 5, 6}
-Pass 3          {3, 4, 5, 6}                {4, 5, 6, 7, 8, 9, 10, 11}
-Pass 4          {4, 5, 6, 7, 8, 9, 10, 11}  {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-Pass 5          {...}                       {6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-Pass 6          {...}                       {7, 8, 9, 10, 11, 12, 13, 14, 15, 16}
-Pass 7          {...}                       {8, 9, 10, 11, 12, 13, 14, 15, 16}
-Pass 8          {...}                       {9, 10, 11, 12, 13, 14, 15, 16}
-Pass 9          {...}                       {10, 11, 12, 13, 14, 15, 16}
-Pass 10         {...}                       {11, 12, 13, 14, 15, 16}
-Pass 11         {...}                       {12, 13, 14, 15, 16}
-Pass 12         {...}                       {13, 14, 15, 16}
-Pass 13         {...}                       {14, 15, 16}
-Pass 14         {14, 15, 16}                {15, 16}
-Pass 15         {15, 16}                    {16}
-Pass 16         {16}                        {}
-"""
+"""f"""
 
 
 # R-8.26
@@ -883,3 +866,97 @@ Figure 8.8."""
 """
 - (/ (X (+ (3, 1), 3), + (- (9, 5), 2)), + (X (3, - (7, 4)), 6))
 """
+
+# R-8.28
+"""
+What is the running time of parenthesize(T, T.root()), as given in Code Fragment 8.25, for a tree T with n nodes?
+"""
+
+# The runtime for this function would be O(n), the same as any preorder traversal.
+
+# R-8.29
+"""
+Describe in pseudo-code an algorithm for computing the number of descendants of each node of a binary tree. The algorithm
+should be based on the Euler tour traversal.
+"""
+
+"""
+class NodeCounter(EulerTour):
+    def _hook_postvisit(self, p, d, path, results):
+        return sum(results) + 1
+        
+Above would take O(n^2) time
+
+OR more efficient O(2n) time
+
+if tree.is_root(p):
+    return sum(results) + 1
+else:
+    return len(results) + 1
+"""
+
+class NodeCounter(EulerTour):
+    """
+                                5
+                        2               5
+                    4
+    >>> t = LinkedBinaryTree()
+    >>> node_counter = NodeCounter(t)
+    >>> root = t._add_root(5)
+    >>> node_counter.execute()
+    1
+    >>> l1 = t._add_left(root, 2)
+    >>> node_counter.execute()
+    2
+    >>> r1 = t._add_right(root, 5)
+    >>> node_counter.execute()
+    3
+    >>> ll2 = t._add_right(l1, 4)
+    >>> node_counter.execute()
+    4
+    """
+    def _hook_postvisit(self, p, d, path, results):
+        if self._tree.is_root(p):
+            return sum(results) + 1
+        return len(results) + 1
+
+# R-8.30
+"""
+The build_expression_tree method of the ExpressionTree class requires that is an iterable of string tokens. We used a 
+convenient example in which each character is its own token, so that the string itself sufficed as expression_tree.
+In general a string such '(35 + 14)' must be explicitely tokenized into list ['(', '35', '+', '14', ')'] so as to ignore whitespace 
+and to recognize multidigit numbers as a single token. Write a utility method, tokenize(raw), that returns such a list of tokens for a
+raw string.
+"""
+
+def tokenize_raw(raw):
+    """
+    >>> tokenize_raw('35 + 14')
+    ['35', '+', '14']
+    >>> tokenize_raw('(4 + 298) * (61 / (2 + 5))')
+    ['(', '4', '+', '298', ')', '*', '(', '61', '/', '(', '2', '+', '5', ')', ')']
+    """
+    raw_list = list(raw)
+    worthy_characters = []
+    digits_present = []
+    for char in raw_list:
+        if digits_present and char.isdigit():
+            digits_present.append(char)
+            continue
+        elif digits_present:
+            number = ''.join(digits_present)
+            worthy_characters.append(number)
+            digits_present = []
+
+        if char == ' ':
+            continue
+        elif char in '()+-x*/':
+            worthy_characters.append(char)
+        elif char.isdigit():
+            digits_present.append(char)
+
+    if digits_present:  # will happen if number is the last element in list
+        number = ''.join(digits_present)
+        worthy_characters.append(number)
+
+    return worthy_characters
