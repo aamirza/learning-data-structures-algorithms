@@ -94,3 +94,43 @@ D = (nlog(n-1) - log(n-1) - n + 1) / 2
 
 This is O(nlog n) because cn log n >= nlog(n-1), and -log(n-1) and -n only further detract from it asymptotically.
 """
+
+# C-8.33
+"""Let T be a (possibly improper) binary tree with n nodes, and let D be the sum of the depths of all the external nodes
+of T. Describe a configuration for T such that D is omega(n^2). Such a tree would be the worst case for the asymptotic
+running time of method height1 (Code Fragment 8.4)"""
+
+# Ω(n^2) means that it is higher than n^2. An example of where this might happen is where you convert only one
+# external node with the maximum depth into an internal node and give it two children. Such a tree might look like this
+
+"""
+                                            X
+                            X                               X
+                X                   X
+            X       X
+        X       X
+     X     X
+   X   X
+  X X
+ X X
+"""
+
+# In this, for every new level of depth added (d+1), D loses d-1, but gains 2d. For every new level of depth added
+# D = D_o - (d-1) + 2d = D_o - d + 1 + 2d = D_o + d + 1
+# We know d grows with O(n) as in d = 0, 1, 2, 3, 4, 5...
+# That means D grows 1 + 2 + 3 + 4 + 5.... as the depth grows. This is the classic Gaussian sum which is O(n^2)
+# The +1 is O(n), 1 + 1 + 1... it depends on the depth.
+
+# Overall, if you want to know D at a certain depth
+# D_1 = D_0 + d + 1, where d = 1
+# D_2 = D_1 + d + 1 = D_0 + d_1 + 1 + d_2 + 1, where d_1 = 1 and d_2 = 2
+# (Gaussian sum) + d
+# D = d(d+1)/2 + d
+# D = (d^2 + d) / 2 + d
+# D = (d^2 + 3d) / 2
+# (d^2 + 3d) / 2 >= cd^2 where c = 1/2 and d_0 > 1
+# This proves that D is omega(n^2)
+
+# This is also the worst-case run time for _height1. _height1 only executes its recursion if it encounters a leaf,
+# and its run time is O(d_p + 1). This kind of binary tree maximizes the number of leafs and also maximizes the depth,
+# making it the worst case run time for _height1.
