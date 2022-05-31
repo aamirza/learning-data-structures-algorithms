@@ -4,6 +4,7 @@ Define the internal path length, I(T), of a tree T to be the sum of the depths o
 Likewise, define the external path length, E(T), of a tree T to be the sum of the depths of all external positions in
 T. Show that if T is a proper binary tree with n positions, then E(T) = I(T) + n - 1
 """
+from ch8.tree import Tree
 
 """
 ----------
@@ -115,7 +116,7 @@ running time of method height1 (Code Fragment 8.4)"""
  X X
 """
 
-# In this, for every new level of depth added (d+1), D loses d-1, but gains 2d. For every new level of depth added
+# In this tree, for every new level of depth added (d+1), D loses d-1, but gains 2d. For every new level of depth added
 # D = D_o - (d-1) + 2d = D_o - d + 1 + 2d = D_o + d + 1
 # We know d grows with O(n) as in d = 0, 1, 2, 3, 4, 5...
 # That means D grows 1 + 2 + 3 + 4 + 5.... as the depth grows. This is the classic Gaussian sum which is O(n^2)
@@ -128,9 +129,95 @@ running time of method height1 (Code Fragment 8.4)"""
 # D = d(d+1)/2 + d
 # D = (d^2 + d) / 2 + d
 # D = (d^2 + 3d) / 2
+
 # (d^2 + 3d) / 2 >= cd^2 where c = 1/2 and d_0 > 1
 # This proves that D is omega(n^2)
 
 # This is also the worst-case run time for _height1. _height1 only executes its recursion if it encounters a leaf,
 # and its run time is O(d_p + 1). This kind of binary tree maximizes the number of leafs and also maximizes the depth,
 # making it the worst case run time for _height1.
+
+# C-8.34
+"""
+For a tree T, let n_i denote the number of its internal nodes, and let n_e denote the number of its external nodes.
+Show that if every internal node in T has exactly 3 children, then n_e = 2n_i + 1
+"""
+
+# Proof by induction
+
+# Base case: just the root. In this case, the number of internal nodes is zero, and the number of external nodes is 1.
+# n_e = 2(n_i) + 1 = 2(0) + 1 = 0 + 1
+# n_e = 1
+# This proves the base case.
+
+# Induction step: Convert the root to an internal node by adding 3 children.
+# n_i += 1
+# n_e loses the root as an external node, but now the root internal node now gives it three more external nodes.
+# n_e = (n_e0 - 1) + 3 = n_e0 + 2
+
+# n_e0 = 2(n_i - 1) + 1 = 2n_i - 2 + 1 = 2n_i - 1
+
+# n_e = n_e0 + 2 = 2n_i - 1 + 2 = 2n_i + 1
+# n_e = 2n_i + 1
+
+# This completes the induction step.
+
+
+# C-8.35
+"""
+Two ordered trees T' and T'' are said to be isomoprhic if one of the following holds:
+
+* Both T' and T'' are empty.
+* The roots of T' and T'' have the same number k >= 0 of subtrees, and the ith such subtree of T' is isomorphic to the 
+ith such subtree of T'' for i = 1, ..., k
+
+Design an algorithm that tests whether two given ordered trees are isomorphic. What is the running time of your algorithm?
+"""
+
+# Isomorphic: The structure is the same
+
+# First check if both trees are empty, if so then they are isomoprhic.
+# Second, check if they have the same number of nodes. If not, they are not isomorphic.
+
+# From there, you do a simultaneous preorder traversal of both trees. Starting with the roots, you count the number
+# of children the root has. This can be an O(n) operation or O(1) operation depending on how the tree class was built.
+# In our case, it will most likely be an O(n) operation.
+# If the number of children matches, you then move onto the next node, in this case the leftmost child.
+# You check if they both have the same number of children, and repeat.
+
+# If at any point the number of children do not match, return false.
+# If the number of children matches for every node, then the trees are isomorphic.
+
+def trees_are_isomoprhic(t1: Tree, t2: Tree):
+    if t1.is_empty() and t2.is_empty():
+        return True
+    elif len(t1) != len(t2):
+        return False
+
+    t1_iter = iter(t1)
+    t2_iter = iter(t2)
+    t1_stopped = False
+    t2_stopped = False
+    while True:
+        try:
+            t1_position = next(t1_iter)
+        except StopIteration:
+            t1_stopped = True
+
+        try:
+            t2_position = next(t2_iter)
+        except StopIteration:
+            t2_stopped = True
+
+        if t1_stopped != t2_stopped:
+            return False
+        elif t1_stopped and t2_stopped:
+            break
+        elif t1.num_children(t1_position) != t2.num_children(t2_position):
+            return False
+    return True
+
+# C-8.36
+"""
+Show that there are more than 2^n improper binary trees with n internal nodes such that no pair are isomoprhic?
+"""
