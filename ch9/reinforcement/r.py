@@ -118,3 +118,99 @@ Phase 2
 9           (3,9,10,13,15,22,25,29,36)          (44)
 10          (3,9,10,13,15,22,25,29,36,44)       ()          
 """
+
+
+# R-9.8
+"""
+Illustrate the execution of the selection-sort on the insertion-sort algorithm on the input sequence of the previous 
+problem.
+"""
+
+"""
+            Collection C                        Priority Queue Q
+Input       (22,15,36,44,10,3,9,13,29,25)       ()
+Phase 1
+1           (15,36,44,10,3,9,13,29,25)          (22)
+2           (36,44,10,3,9,13,29,25)             (15,22)
+3           (44,10,3,9,13,29,25)                (15,22,36)
+4           (10,3,9,13,29,25)                   (15,22,36,44)
+5           (3,9,13,29,25)                      (10,15,22,36,44)
+6           (9,13,29,25)                        (3,10,15,22,36,44)
+7           (13,29,25)                          (3,9,10,15,22,36,44)
+8           (29,25)                             (3,9,10,13,15,22,36,44)
+9           (25)                                (3,9,10,13,15,22,29,36,44)
+10          ()                                  (3,9,10,13,15,22,25,29,36,44)
+Phase 2
+1           (3)                                 (9,10,13,15,22,25,29,36,44)
+2           (3,9)                               (10,13,15,22,25,29,36,44)
+3           (3,9,10)                            (13,15,22,25,29,36,44)
+4           (3,9,10,13)                         (15,22,25,29,36,44)
+5           (3,9,10,13,15)                      (22,25,29,36,44)
+6           (3,9,10,13,15,22)                   (25,29,36,44)
+7           (3,9,10,13,15,22,25)                (29,36,44)
+8           (3,9,10,13,15,22,25,29)             (36,44)
+9           (3,9,10,13,15,22,25,29,36)          (44)
+10          (3,9,10,13,15,22,25,29,36,44)       ()                       
+"""
+
+# R-9.9
+"""
+Give an example of a worst-case sequence with n elements for insertion-sort, and show that insertion-sort runs in 
+Ω(n^2) time on such a sequence.
+"""
+
+# The worst-case example for an insertion-sort were if the numbers in the collection were in descending order.
+
+# Take for example a collection C with 10 numbers in descending order. You take the first number from that collection
+# and it to the priority queue. One number by itself is sorted, so this is 1 operation.
+
+# When the second number is added to the priority queue, it must be compared with the number from the previous step. On
+# deciding it is smaller, it will be added to the front of the queue. This is 2 operations.
+
+# With a third number, it must compared to the two numbers in the previous step before it is added to the front. This is
+# 3 operations...
+
+# We see the familiar 1 + 2 + 3 + 4... + n operations. This type of collection will always be insert-sorted in Ω(n^2).
+
+
+# R-9.10
+"""
+At which hpositions of a heap might the third smallest key be stored?
+"""
+
+# Any position at d = 1 would do. In the array, it could be at indexes 1 or 2 (2nd and 3rd positions)
+
+# R-9.11
+"""At which positions of a heap might the largest key be stored."""
+
+"""
+e.g.
+        2
+    5       67
+7     8
+"""
+
+# What is true about the largest key is that it will always be a leaf position, meaning it can be found at the lowest
+# depth or the second lowest depth.
+
+# R-9.12
+"""
+Consider a situation in which a user has numeric keys and wishes to have a priority queue that is maximum-oriented. How
+could a standard (min-oriented) priority queue be used for such a purpose?
+"""
+
+# Assuming the priority queue is already sorted, and the data is stored in a positiona list, you could just have
+# a remove_max and max methods that return the tail of the list, the same way as returning the head when calling min()
+# and remove_min().
+
+# R-9.13
+"""
+Illustrate the execution of the in-place heap-sort algorithm on the following input sequence: 
+(2,5,16,4,10,23,39,18,26,15).
+"""
+
+# Check Page 389.
+# In place heap-sorting is when you first construct a heap, then deconstruct it using remove_min
+
+
+"""
