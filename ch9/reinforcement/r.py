@@ -213,4 +213,202 @@ Illustrate the execution of the in-place heap-sort algorithm on the following in
 # In place heap-sorting is when you first construct a heap, then deconstruct it using remove_min
 
 
+
 """
+            Collection C                            Heap Q(array format)                Heap Q(parenthesized format
+Input       (2, 5, 16, 4, 10, 23, 39, 18, 26, 15)   ()
+Phase 1
+1           (5, 16, 4, 10, 23, 39, 18, 26, 15)      (2)
+2
+2           (16, 4, 10, 23, 39, 18, 26, 15)         (2, 5)                              2(5)
+3           (4, 10, 23, 39, 18, 26, 15)             (2, 5, 16)                          2(5, 16)
+4           (10, 23, 39, 18, 26, 15)                (2, 5, 16, 4)                       2(5 (4), 16)
+                                                    (2, 4, 16, 5)                       2(4 (5), 16)
+5           (23, 39, 18, 26, 15)                    (2, 4, 16, 5, 10)                   2(4 (5, 10), 16)
+6           (39, 18, 26, 15)                        (2, 4, 16, 5, 10, 23)               2(4(5, 10), 16(23))
+7           (18, 26, 15)                            (2, 4, 16, 5, 10, 23, 39)           2(4(5, 10), 16(23, 39))
+8           (26, 15)                                (2, 4, 16, 5, 10, 23, 39, 18)       2(4(5(18), 10), 16(23, 39))
+9           (15)                                    (2, 4, 16, 5, 10, 23, 39, 18, 26)   2(4(5(18, 26), 10), 16(23, 39))
+10          ()                                      (2, 4, 16, 5, 10, 23, 39, 18, 26, 15)   2(4(5(18, 26), 10(15)), 16(23, 39))
+
+                        2
+            4                   16
+        5        10          23      29
+    18   26     15
+
+Phase 2
+1           ()                                      (15, 4, 16, 5, 10, 23, 39, 18, 26, 2)   15(4(5(18, 26), 10(2)), 16(23, 39))
+            (2)                                     (15, 4, 16, 5, 10, 23, 39, 18, 26)      15(4(5(18, 26), 10), 16(23, 39))
+            (2)                                     (4, 15, 16, 5, 10, 23, 39, 18, 26)      4(15(5(18, 26), 10), 16(23, 39))
+            (2)                                     (4, 5, 16, 15, 10, 23, 39, 18, 26)      4(5(15(18, 26), 10), 16(23, 39))
+2           (2)                                     (26, 5, 16, 15, 10, 23, 39, 18, 4)      26(5(15(18, 4), 10), 16(23, 39))
+            (2, 4)                                  (26, 5, 16, 15, 10, 23, 39, 18)         ...
+            (2, 4)                                  (5, 26, 16, 15, 10, 23, 39, 18)         ...
+            (2, 4)                                  (5, 10, 16, 15, 26, 23, 39, 18)         5(10 (15 (18, 4), 26), 16 (23, 39))
+3           (2, 4)                                  (18, 10, 16, 15, 26, 23, 39, 5)         18(10 (15 (5, 4), 26), 16 (23, 39))
+            (2, 4, 5)                               (18, 10, 16, 15, 26, 23, 39)            ...
+            (2, 4, 5)                               (10, 18, 16, 15, 26, 23, 39)            ...
+            (2, 4, 5)                               (10, 15, 16, 18, 26, 23, 29)            10(15 (18, 26), 16 (23, 29))
+4           (2, 4, 5)                               (29, 15, 16, 18, 26, 23, 10)            ...
+            (2, 4, 5, 10)                           (29, 15, 16, 18, 26, 23)
+            (2, 4, 5, 10)                           (15, 29, 16, 18, 26, 23)
+            (2, 4, 5, 10)                           (15, 18, 16, 29, 26, 23)                15(18 (29, 26), 16 (23))
+5           (2, 4, 5, 10)                           (23, 18, 16, 29, 26, 15)                ...
+            (2, 4, 5, 10, 15)                       (23, 18, 16, 29, 26)                    ...
+            (2, 4, 5, 10, 15)                       (16, 18, 23, 29, 26)                    16(18 (29, 26), 23)
+6           (2, 4, 5, 10, 15)                       (26, 18, 23, 29, 16)                    ...
+            (2, 4, 5, 10, 15, 16)                   (26, 18, 23, 29)                        ...
+            (2, 4, 5, 10, 15, 16)                   (18, 26, 23, 29)                        18(26 (29), 23)
+7           (2, 4, 5, 10, 15, 16)                   (29, 26, 23, 18)                        ...
+            (2, 4, 5, 10, 15, 16, 18)               (29, 26, 23)                            ...
+            (2, 4, 5, 10, 15, 16, 18)               (23, 26, 29)                            23(26, 29)
+8           (2, 4, 5, 10, 15, 16, 18)               (29, 26, 23)                            ...
+            (2, 4, 5, 10, 15, 16, 18, 23)           (29, 26)                                ...
+            (2, 4, 5, 10, 15, 16, 18, 23)           (26, 29)                                26 (29)
+9           (2, 4, 5, 10, 15, 16, 18, 23)           (29, 26)                                ...
+            (2, 4, 5, 10, 15, 16, 18, 23, 26)       (29)                                    29
+10          (2, 4, 5, 10, 15, 16, 18, 23, 26, 29)   ()                                      null
+"""
+
+# R-9.14
+"""
+Let T be a complete binary tree such that position p stores an element with key f(p), where f(p) is the level number of p.
+Is tree T a heap? Why or why not? 
+"""
+
+
+# If all the positions from the highest depth are filled sequentially before adding a new depth, then yes, it would be a
+# heap. By definition of level numbering, the children will always have a lower level number than their parent. The
+# smallest number is at the top, the root.
+
+# It would not be a heap in the case that their are leaves at a higher depth (other than the lowest), because this
+# would violate the heap-shape property (?)
+
+# R-9.15
+"""
+Explain why the descirption down-heap bubbling does not consider the case in which position p has a right child but not
+a left-child.
+"""
+
+# There is no such thing as a heap where a node has a right child without a left-child. Heaps are filled sequentially
+# from left to right.
+
+
+# R-9.16
+"""
+Is there a heap H storing seven entries with distinct keys such that a preorder traversal of H yields the entries of H
+in increasing or decreasing order by key?
+"""
+
+"""
+                1
+            2       5
+          3   4    6 7 
+"""
+
+# ^ is a preorder traversal that yields keys in increasing order. You can't have a preorder traversal of a heap
+# return keys in decreasing order, because a preorder traversal starts with the root, and the root of a heap is by
+# defintion the smallest number–its children will only increase from there. The only way a preorder traversal with
+# decreasing numbers can be done is if it's a max-oriented heap.
+
+
+"""
+            7
+        6       3
+       5 4     2 1    
+"""
+
+
+# R-9.17
+"""
+Let H be a heap storing 15 entries using the array-based representation of a complete binary tree. What is the sequence
+of indices of the array that are visited in a preorder traversal of H? What about an inorder traversal of H? What about
+a postorder traversal of H?
+"""
+
+"""
+                                0
+                  1                               2
+            3           4                   5           6
+           7 8         9 10               11 12       13 14
+"""
+
+# Preorder traversal: [0, 1, 3, 7, 8, 4, 9, 10, 2, 5, 11, 12, 6, 13, 14]
+# Inorder traversal: [7, 3, 8, 1, 9, 4, 10, 0, 11, 5, 12, 2, 13, 6, 14]
+# Postorder traversal: [7, 8, 3, 9, 10, 4, 1, 11, 12, 5, 13, 14, 6, 2, 0]
+
+
+# R-9.18
+"""
+Show that the sum sum_(i=1)^n (log i), which appears in the analysis of heap sort is O(n log n)
+
+HINT: Consider the last n/2 terms in this sum.
+"""
+
+# We know that sum_(i=1)^n (log i) > sum_(i=n/2)^n (log i)
+# But each of the terms in sum_(i=n/2)^n (log i) is greater than or equal to log(n/2), since it is log (n/2) + log (n/2 + 1) + ... + log(n)
+# This is smaller than log (n/2) + log (n/2) + log (n/2) ... = (n/2) log(n/2)
+# This gives a lower bound of (n/2) log(n/2)= (n/2)(log n - log 2)
+# Which is Ω（n log n)
+
+# Credits: https://stackoverflow.com/a/21152768
+
+
+# R-9.19
+"""
+Bill claims that a preorder traversal of a heap will list its keys in nondecreasing order. Draw an example of a heap
+that proves him wrong
+"""
+
+
+"""
+            1
+        7       3   
+"""
+
+
+# R-9.20
+"""
+Hillary claims that a postorder traversal of a heap will list its keys in nonincreasing order. Draw an example of a heap
+that proves her wrong.
+"""
+
+"""
+            1
+        5       7
+"""
+
+# R-9.21
+"""
+Show all the steps of the algorithm for removing the entry (16,X) from the heap of Figure 9.1, assuming the entry had 
+been identified with a locator.
+"""
+
+# Step 1 - swap with the last position, in this case (13, W)
+
+"""
+                                                    (4,C)
+                    (5,A)                                                               (6,Z)
+            (15,K)          (9,F)                                               (7,Q)           (20,B)
+        (13,W) (25,J)   (14,E) (12,H)                                       (11,S) (16,X)
+"""
+
+# Step 2 - Pop (16,X) from the heap.
+
+"""
+                                                    (4,C)
+                    (5,A)                                                               (6,Z)
+            (15,K)          (9,F)                                               (7,Q)           (20,B)
+        (13,W) (25,J)   (14,E) (12,H)                                       (11,S)
+"""
+
+# Step 3 - Since 13,W is smaller than its parent, we will be bubbling up the heap from 13,W
+
+"""
+                                                    (4,C)
+                    (5,A)                                                               (6,Z)
+            (13,W)          (9,F)                                               (7,Q)           (20,B)
+        (15,K) (25,J)   (14,E) (12,H)                                       (11,S)
+"""
+
+# The heap-order property has been restored. End algorithm.
