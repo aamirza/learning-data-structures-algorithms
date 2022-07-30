@@ -412,3 +412,116 @@ been identified with a locator.
 """
 
 # The heap-order property has been restored. End algorithm.
+
+
+
+# R-9.22
+"""
+Show all the steps of the algorithm for replacing key of entry (5,A) with 18 in the heap of Figure 9.1, assuming the 
+entry had been identified with a locator.
+"""
+
+# Step 1: Replace 5 with 18.
+
+"""
+                                                    (4,C)
+                    (18,A)                                                               (6,Z)
+            (15,K)          (9,F)                                               (7,Q)           (20,B)
+        (16,X) (25,J)   (14,E) (12,H)                                       (11,S) (13,W)
+"""
+
+# Step 1: Replace 5 with 18.
+
+"""
+                                                    (4,C)
+                    (18,A)                                                               (6,Z)
+            (15,K)          (9,F)                                               (7,Q)           (20,B)
+        (16,X) (25,J)   (14,E) (12,H)                                       (11,S) (13,W)
+"""
+
+# Step 2: Either upheap or downheap bubble. In this case downheap.
+
+"""
+                                                    (4,C)
+                    (9,F)                                                               (6,Z)
+            (15,K)          (18,A)                                               (7,Q)           (20,B)
+        (16,X) (25,J)   (14,E) (12,H)                                       (11,S) (13,W)
+"""
+
+# Step 3: Continue to bubble down-heap
+
+"""
+                                                    (4,C)
+                    (9,F)                                                               (6,Z)
+            (15,K)          (12,H)                                               (7,Q)           (20,B)
+        (16,X) (25,J)   (14,E) (18,A)                                       (11,S) (13,W)
+"""
+
+# Heap-order property restored. End algorithm.
+
+
+# R-9.23
+"""
+Draw an example of a heap whose keys are all the odd numbers from 1 to 59 (with no repeats), such that the insertion of
+the key 32 would cause up-heap bubbling to proceed all the way up to a child of the root (replacing that child's key
+with 32).
+"""
+
+"""
+                                                    1
+                                3                                                   33
+                    5                   7                               35                        39
+                9      11         13        15                    41         43             45         47
+              17 19  21 23      25 27      29 31                49 51      53 55          57 59
+"""
+
+# 32 would be inserted here as the child of 47. It would then up-heap bubble to become the right child of 1.
+
+# Step 1
+
+"""
+                                                    1
+                                3                                                   33
+                    5                   7                               35                        39
+                9      11         13        15                    41         43             45         47
+              17 19  21 23      25 27      29 31                49 51      53 55          57 59      32
+"""
+
+# Step 2
+
+"""
+                                                    1
+                                3                                                   33
+                    5                   7                               35                        39
+                9      11         13        15                    41         43             45         32
+              17 19  21 23      25 27      29 31                49 51      53 55          57 59      47
+"""
+
+# Step 3
+
+"""
+                                                    1
+                                3                                                   33
+                    5                   7                               35                        32
+                9      11         13        15                    41         43             45         39
+              17 19  21 23      25 27      29 31                49 51      53 55          57 59      47
+"""
+
+# Step 4
+
+"""
+                                                    1
+                                3                                                   32
+                    5                   7                               35                        33
+                9      11         13        15                    41         43             45         39
+              17 19  21 23      25 27      29 31                49 51      53 55          57 59      47
+"""
+
+# R-9.24
+"""
+Describe a sequence of n insertions in a heap that requires Ω（n log n) time to process.
+"""
+
+# A sequence of insertions that would fit this criteria would be if the numbers were added in decreasing order. That
+# way a number inserted to the bottom of the heap would always have to up-heap bubble to the root, which is a number
+# of operations proportional to the height of the tree, in other words, log n. n of these operations would make Ω(n log n)
