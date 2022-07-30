@@ -525,3 +525,23 @@ Describe a sequence of n insertions in a heap that requires Ω（n log n) time t
 # A sequence of insertions that would fit this criteria would be if the numbers were added in decreasing order. That
 # way a number inserted to the bottom of the heap would always have to up-heap bubble to the root, which is a number
 # of operations proportional to the height of the tree, in other words, log n. n of these operations would make Ω(n log n)
+
+# R-9.25
+"""
+Complete Figure 9.9 by showing all the steps of the in-place heap-sort algorithm. Show both the array and the associated
+heap at the end of each step.
+"""
+
+"""
+
+Heap (array-based)              Array                           Full-array
+Step 1
+[]                              [2, 7, 9, 5, 6, 4]              [2, 7, 9, 5, 6, 4]
+Step 2
+[2]                             [7, 9, 5, 6, 4]                 [2, 7, 9, 5, 6, 4]
+Step 3
+[2, 7]                          [9, 5, 6, 4]                    [2, 7, 9, 5, 6, 4]
+[7, 2]                          [9, 5, 6, 4]                    [7, 2, 9, 5, 6, 4]
+Step 4
+[7, 2, 9]                 
+"""
